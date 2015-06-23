@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <RelativeLayout 
+        android:id="@+id/drawer_title"
+        android:layout_width="280dp"
+        android:layout_height="178dp"
+        android:background="@color/app_theme_color_deep">
+        <com.immersive.widget.CircleImageView
+            android:id="@+id/iv_head"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_head"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp" />
+        <TextView 
+            android:id="@+id/iv_title" 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:text="Hi, Cortina~ \n\n\n\nWelcome, you have already been here for 3 days."
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="15dp"
+            android:layout_toLeftOf="@id/iv_head"
+            android:layout_marginRight="10dp"/>
+        
+    </RelativeLayout>
+    <ListView
+        android:id="@+id/drawer_list"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:choiceMode="singleChoice"
+        android:dividerHeight="1dp" />
+
+</LinearLayout>

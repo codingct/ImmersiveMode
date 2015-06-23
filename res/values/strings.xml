@@ -1,0 +1,20 @@
+<resources>
+
+    <string name="app_name">Immersive Mode</string>
+    
+    <string name="tab1">ALL</string>
+    <string name="tab2">TYPE</string>
+    <string name="tab3">OTHER</string>
+    
+    <string name="drawer_new">show plat</string>
+    <string name="drawer_favorite">favorite</string>
+    <string name="drawer_hot">pretty hot</string>
+    <string name="drawer_random">random</string>
+    <string name="drawer_feedback">feedback</string>
+    <string name="drawer_upload">upload</string>
+    <string name="drawer_setting">settings</string>
+    
+    <string name="exit_again">press again to exit</string>
+    
+
+</resources>
