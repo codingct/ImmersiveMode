@@ -9,6 +9,7 @@ import com.code.immersivemode.R;
 import com.immersive.adapter.DrawerAdapter;
 import com.immersive.helper.Tab1Helper;
 import com.immersive.helper.Tab2Helper;
+import com.immersive.service.SneakerService;
 import com.immersive.utils.ScreenShotUtils;
 import com.immersive.utils.ShareUtils;
 
@@ -80,12 +81,13 @@ public class MainActivity extends BaseActivity {
 		 requestWindowFeature(Window.FEATURE_NO_TITLE);
 		 setContentView(R.layout.page_main);
 		 
-		 InitListener();
-		 InitCursor();  
-	     InitTab();  
-	     InitViewPager();
-	     InitDrawer();
-	     InitWidget();
+		 initListener();
+		 initCursor();  
+	     initTab();  
+	     initViewPager();
+	     initDrawer();
+	     initWidget();
+	     initService();
 	}
 	
 	private Timer ExitTimer = new Timer();
@@ -113,12 +115,17 @@ public class MainActivity extends BaseActivity {
     	return super.onKeyDown(keyCode, event);
     }
 	
-	private void InitWidget() {
+	private void initService() {
+		Intent Serviceintent = new Intent(this, SneakerService.class);
+	    startService(Serviceintent);
+	}
+	
+	private void initWidget() {
 		FABAdd = (Button) findViewById(R.id.fab_add);
 		FABAdd.setOnClickListener(mOnClickListener);
 	}
 	
-	private void InitListener() {
+	private void initListener() {
 		mDrawerItemClickListener = new OnItemClickListener() {
 
 			@Override
@@ -145,7 +152,7 @@ public class MainActivity extends BaseActivity {
 		
 		
 	}
-	private void InitDrawer() {
+	private void initDrawer() {
 		// TODO Auto-generated method stub
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -200,7 +207,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	@SuppressLint("InflateParams")
-	private void InitViewPager() {  
+	private void initViewPager() {  
         viewPager=(ViewPager) findViewById(R.id.vPager);  
         views=new ArrayList<View>();  
         LayoutInflater inflater=getLayoutInflater();  
@@ -219,7 +226,7 @@ public class MainActivity extends BaseActivity {
         viewPager.setOnPageChangeListener(new MyOnPageChangeListener());  
     }  
 
-    private void InitTab() {  
+    private void initTab() {  
         textView1 = (TextView) findViewById(R.id.tab1);  
         textView2 = (TextView) findViewById(R.id.tab2);  
         textView3 = (TextView) findViewById(R.id.tab3);  
@@ -229,7 +236,7 @@ public class MainActivity extends BaseActivity {
         textView3.setOnClickListener(new MyOnClickListener(2));  
     }  
   
-    private void InitCursor() {  
+    private void initCursor() {  
         imageView= (ImageView) findViewById(R.id.cursor);  
         bmpW = BitmapFactory.decodeResource(getResources(), R.drawable.cursor).getWidth();// 获取图片宽度  
         DisplayMetrics dm = new DisplayMetrics();  

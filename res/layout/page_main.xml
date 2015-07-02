@@ -92,7 +92,7 @@
                     android:id="@+id/fab_add"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:background="@drawable/ic_launcher"
+                    android:background="@drawable/fab_bg"
                     android:layout_alignParentBottom="true"
             		android:layout_alignParentRight="true"
             		android:layout_marginRight="10dp"
