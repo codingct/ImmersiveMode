@@ -14,6 +14,7 @@ import com.immersive.utils.ShareUtils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Build;
@@ -39,6 +40,7 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -54,6 +56,7 @@ public class MainActivity extends BaseActivity {
     private List<View> views;// Tab页面列表  
     private ImageView drawerToggler;
     private ListView drawerList;
+    private Button FABAdd;
     private DrawerAdapter drawerAdapter;
     private int offset = 0;// 动画图片偏移量  
     private int currIndex = 0;// 当前页卡编号  
@@ -65,6 +68,7 @@ public class MainActivity extends BaseActivity {
     
     private final static String TAG = "MainActivity";
     private OnItemClickListener mDrawerItemClickListener = null;
+    private OnClickListener mOnClickListener = null;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +85,7 @@ public class MainActivity extends BaseActivity {
 	     InitTab();  
 	     InitViewPager();
 	     InitDrawer();
-	     
+	     InitWidget();
 	}
 	
 	private Timer ExitTimer = new Timer();
@@ -109,6 +113,11 @@ public class MainActivity extends BaseActivity {
     	return super.onKeyDown(keyCode, event);
     }
 	
+	private void InitWidget() {
+		FABAdd = (Button) findViewById(R.id.fab_add);
+		FABAdd.setOnClickListener(mOnClickListener);
+	}
+	
 	private void InitListener() {
 		mDrawerItemClickListener = new OnItemClickListener() {
 
@@ -119,12 +128,29 @@ public class MainActivity extends BaseActivity {
 				ShareUtils.shareMsg("测试分享", "测试分享", ImgPath, MainActivity.this);
 			}
 		};
+		mOnClickListener = new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				switch(v.getId()) {
+				case R.id.fab_add:
+					Intent intent = new Intent(MainActivity.this, MapActivity.class);
+					MainActivity.this.startActivity(intent);
+					break;
+					
+				}
+			}
+			
+		};
+		
+		
 	}
 	private void InitDrawer() {
 		// TODO Auto-generated method stub
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        drawerToggler = (ImageView) findViewById(R.id.open);
+        drawerToggler = (ImageView) findViewById(R.id.topbar_opv);
+        drawerToggler.setVisibility(View.VISIBLE);
         drawerToggler.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -143,14 +169,14 @@ public class MainActivity extends BaseActivity {
 			public void onDrawerClosed(View arg0) {
 				// TODO Auto-generated method stub
 				isDrawOpened = false;
-				
+				drawerToggler.setImageDrawable(getResources().getDrawable(R.drawable.ic_drawer));
 			}
 
 			@Override
 			public void onDrawerOpened(View arg0) {
 				// TODO Auto-generated method stub
 				isDrawOpened = true;
-				
+				drawerToggler.setImageDrawable(getResources().getDrawable(R.drawable.ic_back));
 			}
 
 			@Override

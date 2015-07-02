@@ -2,5 +2,8 @@
 <resources>
     <color name="app_theme_color">#44b785</color>
     <color name="app_theme_color_deep">#2b7354</color>
-    
+
+    <color name="white">#ffffff</color>
+    <!-- http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
+    <color name="material_blue_500">#5677fc</color>
 </resources>

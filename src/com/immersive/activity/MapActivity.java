@@ -6,8 +6,12 @@ import android.os.Bundle;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -15,14 +19,10 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.LocationClientOption.LocationMode;
 import com.baidu.mapapi.map.BaiduMap;
-import com.baidu.mapapi.map.BitmapDescriptor;
-import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
-import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
-import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.code.immersivemode.R;
 
@@ -36,6 +36,10 @@ public class MapActivity extends BaseActivity {
 	private BDLocationListener mBLocationListener = null;
 	private LocationClientOption mLocationOption = null;
 	
+	private OnClickListener mOnClickListener = null;
+	
+	private TextView topBar_title = null;
+	private ImageView topBar_back = null;
 	
 	
 	@TargetApi(Build.VERSION_CODES.KITKAT)
@@ -49,13 +53,35 @@ public class MapActivity extends BaseActivity {
 					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.map_view);
+		setContentView(R.layout.page_sneaker);
+		initListener();
+		initWidget();
 		initMap();
 		startLocation();
+	}
+	private void initListener() {
+		mOnClickListener = new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				switch(v.getId()) {
+				case R.id.topbar_opv:
+					finishThis();
+					break;
+				}
+			}
+		};
+	}
+	private void initWidget() {
+		topBar_title = (TextView) findViewById(R.id.topbar_title);
+		topBar_back = (ImageView) findViewById(R.id.topbar_opv);
+		
+		topBar_back.setImageDrawable(getResources().getDrawable(R.drawable.ic_back));
+		topBar_back.setOnClickListener(mOnClickListener);
 	}
 	
 	private void initMap() {
 		mMapView = (MapView) findViewById(R.id.bmapView);
+		mMapView.showZoomControls(false);
 		mBaiduMap = mMapView.getMap();
 		mBaiduMap.setMyLocationEnabled(true);								//开启定位图层
 		
@@ -66,12 +92,12 @@ public class MapActivity extends BaseActivity {
 	    mLocationOption = new LocationClientOption();
 	    mLocationOption.setLocationMode(LocationMode.Hight_Accuracy);		//设置定位模式
 	    mLocationOption.setCoorType("bd09ll");								//返回的定位结果是百度经纬度,默认值gcj02
-	    mLocationOption.setScanSpan(1000);									//设置发起定位请求的间隔时间为5000ms
+	    mLocationOption.setScanSpan(5000);									//设置发起定位请求的间隔时间为5000ms
 	    mLocationOption.setIsNeedAddress(true);								//返回的定位结果包含地址信息
 	    mLocationOption.setNeedDeviceDirect(true);							//返回的定位结果包含手机机头的方向
 	    mLocationClient.setLocOption(mLocationOption);
 	    mLocationClient.start();
-	    MapStatusUpdate mapStatusUpdate = MapStatusUpdateFactory.zoomBy(5);
+	    MapStatusUpdate mapStatusUpdate = MapStatusUpdateFactory.zoomBy(6);
 		mBaiduMap.animateMapStatus(mapStatusUpdate);
 	}
 	
@@ -120,6 +146,7 @@ public class MapActivity extends BaseActivity {
 			} 
 			Log.d("Location", sb.toString());
 			
+			// 标记定位位置
 			MyLocationData locData = new MyLocationData.Builder()
 					.accuracy(location.getRadius())
 					.direction(location.getDirection())
@@ -144,9 +171,10 @@ public class MapActivity extends BaseActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		mMapView.onDestroy();
-		mLocationClient.stop();
 		mBaiduMap.setMyLocationEnabled(false);
+		mLocationClient.stop();
+		mMapView.onDestroy();
+		
 	}
 
 	@Override
