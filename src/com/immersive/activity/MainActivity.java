@@ -9,6 +9,8 @@ import com.code.immersivemode.R;
 import com.immersive.adapter.DrawerAdapter;
 import com.immersive.helper.Tab1Helper;
 import com.immersive.helper.Tab2Helper;
+import com.immersive.utils.ScreenShotUtils;
+import com.immersive.utils.ShareUtils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -35,6 +37,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -58,6 +62,9 @@ public class MainActivity extends BaseActivity {
     private DrawerLayout mDrawerLayout = null;
     private boolean isDrawOpened = false;
     private static boolean canExit = false;
+    
+    private final static String TAG = "MainActivity";
+    private OnItemClickListener mDrawerItemClickListener = null;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +76,7 @@ public class MainActivity extends BaseActivity {
 		 requestWindowFeature(Window.FEATURE_NO_TITLE);
 		 setContentView(R.layout.page_main);
 		 
+		 InitListener();
 		 InitCursor();  
 	     InitTab();  
 	     InitViewPager();
@@ -101,6 +109,17 @@ public class MainActivity extends BaseActivity {
     	return super.onKeyDown(keyCode, event);
     }
 	
+	private void InitListener() {
+		mDrawerItemClickListener = new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				String ImgPath = ScreenShotUtils.shotAndSave(MainActivity.this);
+				ShareUtils.shareMsg("测试分享", "测试分享", ImgPath, MainActivity.this);
+			}
+		};
+	}
 	private void InitDrawer() {
 		// TODO Auto-generated method stub
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -150,6 +169,7 @@ public class MainActivity extends BaseActivity {
         drawerList = (ListView) findViewById(R.id.drawer_list);
         drawerAdapter = new DrawerAdapter(this);
         drawerList.setAdapter(drawerAdapter);
+        drawerList.setOnItemClickListener(mDrawerItemClickListener);
         
 	}
 

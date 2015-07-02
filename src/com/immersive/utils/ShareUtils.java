@@ -23,7 +23,7 @@ public class ShareUtils {
      * @param imgPath 
      *            图片路径，不分享图片则传null 
      */  
-    public static void shareMsg(String activityTitle, String msgTitle, String msgText,  
+    public static void shareMsg(String msgTitle, String msgText,  
             String imgPath, BaseActivity mActivity) {  
         Intent intent = new Intent(Intent.ACTION_SEND);  
         if (imgPath == null || imgPath.equals("")) {  
@@ -39,7 +39,7 @@ public class ShareUtils {
         intent.putExtra(Intent.EXTRA_SUBJECT, msgTitle);  
         intent.putExtra(Intent.EXTRA_TEXT, msgText);  
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);  
-        mActivity.startActivity(Intent.createChooser(intent, activityTitle));  
+        mActivity.startActivity(Intent.createChooser(intent, "分享"));  
     }  
 	
 }

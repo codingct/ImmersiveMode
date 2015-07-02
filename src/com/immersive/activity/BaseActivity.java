@@ -46,12 +46,12 @@ public class BaseActivity extends Activity {
 	}
 	
 	@Override
-	public void onResume() {
+	protected void onResume() {
 		super.onResume();
 	}
 	
 	@Override
-	public void onPause() {
+	protected void onPause() {
 		super.onPause();
 	}
 	
