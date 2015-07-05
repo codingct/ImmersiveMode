@@ -3,14 +3,8 @@ package com.immersive.service;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.code.immersivemode.R;
-import com.immersive.activity.MainActivity;
-import com.immersive.activity.SplashActivity;
-import com.immersive.utils.BitmapUtils;
-
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +17,7 @@ public class SneakerService extends Service {
 	private static final String TAG = "SneakerService";  
 	private boolean mReflectFlg = false;  
     
-    private static final int NOTIFICATION_ID = 1; // 如果id设置为0,会导致不能设置为前台service  
+    protected static final int NOTIFICATION_ID = 1; // 如果id设置为0,会导致不能设置为前台service  
     private static final Class<?>[] mSetForegroundSignature = new Class[] { boolean.class };  
     private static final Class<?>[] mStartForegroundSignature = new Class[] { int.class, Notification.class };  
     private static final Class<?>[] mStopForegroundSignature = new Class[] { boolean.class };  
@@ -56,27 +50,10 @@ public class SneakerService extends Service {
             throw new IllegalStateException(  
                     "OS doesn't have Service.startForeground OR Service.setForeground!");  
         }  
-  
-        initNotification();
+
     }    
 	
-	private void initNotification() {
-		Notification.Builder builder = new Notification.Builder(this);
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Intent.ACTION_MAIN);
-        notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//设置启动模式
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);    
-        builder.setContentIntent(contentIntent);  
-        builder.setSmallIcon(R.drawable.ic_notification);
-        builder.setLargeIcon(BitmapUtils.getInstance().drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher)));
-        builder.setTicker("Sneaker Service Start");  
-        builder.setContentTitle("Sneaker");  
-        builder.setContentText("Make this service run in the foreground.");
-        Notification notification = builder.build();  
-          
-        startForegroundCompat(NOTIFICATION_ID, notification);    
-	}
+
       
     @Override  
     public int onStartCommand(Intent intent, int flags, int startId) {  

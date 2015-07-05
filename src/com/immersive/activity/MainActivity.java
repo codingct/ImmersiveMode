@@ -9,7 +9,7 @@ import com.code.immersivemode.R;
 import com.immersive.adapter.DrawerAdapter;
 import com.immersive.helper.Tab1Helper;
 import com.immersive.helper.Tab2Helper;
-import com.immersive.service.SneakerService;
+import com.immersive.service.SneakerGuardService;
 import com.immersive.utils.ScreenShotUtils;
 import com.immersive.utils.ShareUtils;
 
@@ -67,7 +67,7 @@ public class MainActivity extends BaseActivity {
     private boolean isDrawOpened = false;
     private static boolean canExit = false;
     
-    private final static String TAG = "MainActivity";
+    public final static String TAG = "MainActivity";
     private OnItemClickListener mDrawerItemClickListener = null;
     private OnClickListener mOnClickListener = null;
 
@@ -116,7 +116,7 @@ public class MainActivity extends BaseActivity {
     }
 	
 	private void initService() {
-		Intent Serviceintent = new Intent(this, SneakerService.class);
+		Intent Serviceintent = new Intent(this, SneakerGuardService.class);
 	    startService(Serviceintent);
 	}
 	
@@ -141,7 +141,7 @@ public class MainActivity extends BaseActivity {
 			public void onClick(View v) {
 				switch(v.getId()) {
 				case R.id.fab_add:
-					Intent intent = new Intent(MainActivity.this, MapActivity.class);
+					Intent intent = new Intent(MainActivity.this, SneakerActivity.class);
 					MainActivity.this.startActivity(intent);
 					break;
 					

@@ -49,9 +49,11 @@
         </service>
         
         <service 
-            android:name="com.immersive.service.SneakerService" >    
-              
-    	</service>    
+            android:name="com.immersive.service.SneakerGuardService" >                
+    	</service>
+    	<service 
+            android:name="com.immersive.service.SneakerRecordService" >          
+    	</service>      
 
         <activity
             android:name="com.immersive.activity.SplashActivity"
@@ -69,6 +71,12 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.immersive.activity.SneakerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
         <activity

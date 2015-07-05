@@ -13,6 +13,7 @@ import android.content.Context;
 public class AppContext extends Application {
 	private static AppContext mInstance;
 	private static String DATABASE_NAME = "sneaker";
+	public static boolean isRecordStart = false;
 	
 	public static AppContext getInstance() {
 		return mInstance;
