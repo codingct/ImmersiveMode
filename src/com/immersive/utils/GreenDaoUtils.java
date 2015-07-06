@@ -1,5 +1,6 @@
 package com.immersive.utils;
 
+import java.util.Date;
 import java.util.List;
 
 import com.code.immersivemode.AppContext;
@@ -58,6 +59,21 @@ public class GreenDaoUtils {
     }
     
     /** 查询 */
+    public boolean isUserSaved(int id)
+    {
+        QueryBuilder<User> qb = userDao.queryBuilder();
+        qb.where(UserDao.Properties.Id.eq(id));
+        qb.buildCount().count();
+        return qb.buildCount().count() > 0 ? true : false;
+    }
+    
+    public boolean isRecordSaved(long record_id)
+    {
+        QueryBuilder<Record> qb = recordDao.queryBuilder();
+        qb.where(RecordDao.Properties.Id.eq(record_id));
+        qb.buildCount().count();
+        return qb.buildCount().count() > 0 ? true : false;
+    }
     public List<User> getAllUser() {
         return userDao.loadAll();
     }
@@ -75,6 +91,19 @@ public class GreenDaoUtils {
         	return qb.list();
         } else {
             return null;
+        }
+    }
+    public long getReocrdIdbyDate(Date date)
+    {
+        QueryBuilder<Record> qb = recordDao.queryBuilder();
+        qb.where(RecordDao.Properties.Record_time.eq(date));
+        if (qb.list().size() > 0)
+        {
+            return qb.list().get(0).getId();
+        }
+        else
+        {
+            return -1;
         }
     }
     private List<Location> getLocationByRecordId(int Record_id) {
@@ -96,7 +125,7 @@ public class GreenDaoUtils {
     }
     private void deleteRecord(int Record_id) {
     	QueryBuilder<Record> qb = recordDao.queryBuilder();
-        DeleteQuery<Record> bd = qb.where(RecordDao.Properties.Record_id.eq(Record_id)).buildDelete();
+        DeleteQuery<Record> bd = qb.where(RecordDao.Properties.Id.eq(Record_id)).buildDelete();
         bd.executeDeleteWithoutDetachingEntities();
     }
     private void deleteLocation(int Record_id) {

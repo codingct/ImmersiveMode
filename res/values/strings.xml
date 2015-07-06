@@ -16,6 +16,7 @@
     
     <string name="back">Back</string>
     <string name="start">Start</string>
+    <string name="pause">Pause</string>
     <string name="over">Over</string>
     
     <string name="exit_again">press again to exit</string>

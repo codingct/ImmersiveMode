@@ -14,7 +14,7 @@ import com.code.immersivemode.Record;
 /** 
  * DAO for table RECORD.
 */
-public class RecordDao extends AbstractDao<Record, Integer> {
+public class RecordDao extends AbstractDao<Record, Long> {
 
     public static final String TABLENAME = "RECORD";
 
@@ -23,9 +23,9 @@ public class RecordDao extends AbstractDao<Record, Integer> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property Record_id = new Property(0, int.class, "record_id", true, "RECORD_ID");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property User_id = new Property(1, int.class, "user_id", false, "USER_ID");
-        public final static Property Record_time = new Property(2, String.class, "record_time", false, "RECORD_TIME");
+        public final static Property Record_time = new Property(2, java.util.Date.class, "record_time", false, "RECORD_TIME");
     };
 
 
@@ -41,9 +41,9 @@ public class RecordDao extends AbstractDao<Record, Integer> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'RECORD' (" + //
-                "'RECORD_ID' INTEGER PRIMARY KEY NOT NULL ," + // 0: record_id
+                "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'USER_ID' INTEGER NOT NULL ," + // 1: user_id
-                "'RECORD_TIME' TEXT);"); // 2: record_time
+                "'RECORD_TIME' INTEGER);"); // 2: record_time
     }
 
     /** Drops the underlying database table. */
@@ -56,28 +56,32 @@ public class RecordDao extends AbstractDao<Record, Integer> {
     @Override
     protected void bindValues(SQLiteStatement stmt, Record entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getRecord_id());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getUser_id());
  
-        String record_time = entity.getRecord_time();
+        java.util.Date record_time = entity.getRecord_time();
         if (record_time != null) {
-            stmt.bindString(3, record_time);
+            stmt.bindLong(3, record_time.getTime());
         }
     }
 
     /** @inheritdoc */
     @Override
-    public Integer readKey(Cursor cursor, int offset) {
-        return cursor.getInt(offset + 0);
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     /** @inheritdoc */
     @Override
     public Record readEntity(Cursor cursor, int offset) {
         Record entity = new Record( //
-            cursor.getInt(offset + 0), // record_id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getInt(offset + 1), // user_id
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2) // record_time
+            cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)) // record_time
         );
         return entity;
     }
@@ -85,22 +89,23 @@ public class RecordDao extends AbstractDao<Record, Integer> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, Record entity, int offset) {
-        entity.setRecord_id(cursor.getInt(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setUser_id(cursor.getInt(offset + 1));
-        entity.setRecord_time(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setRecord_time(cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)));
      }
     
     /** @inheritdoc */
     @Override
-    protected Integer updateKeyAfterInsert(Record entity, long rowId) {
-        return entity.getRecord_id();
+    protected Long updateKeyAfterInsert(Record entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     /** @inheritdoc */
     @Override
-    public Integer getKey(Record entity) {
+    public Long getKey(Record entity) {
         if(entity != null) {
-            return entity.getRecord_id();
+            return entity.getId();
         } else {
             return null;
         }

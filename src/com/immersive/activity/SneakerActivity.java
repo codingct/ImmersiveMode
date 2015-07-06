@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
@@ -15,6 +18,7 @@ import android.os.Build.VERSION_CODES;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -26,14 +30,17 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
+import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
 import com.immersive.controller.MapController;
 import com.immersive.service.SneakerRecordService;
 import com.immersive.utils.ServiceUtils;
+import com.immersive.utils.StringUtils;
 
 
 public class SneakerActivity extends BaseActivity {
 
+	public static final String TAG = "SneakerActivity";
 	private MapView mMapView = null;
 	private BaiduMap mBaiduMap = null;
 	public static final int TYPE_NORMAL = BaiduMap.MAP_TYPE_NORMAL;
@@ -44,7 +51,8 @@ public class SneakerActivity extends BaseActivity {
 	
 	private TextView topBar_title = null;
 	private ImageView topBar_back = null;
-	private Button btn_start = null;
+	private TextView tv_timer = null;
+	private Button btn_start, btn_pause, btn_over = null;
 	
 	private SneakerReceiver mSneakerReceiver = null;
 	private IntentFilter filter = null;
@@ -68,6 +76,9 @@ public class SneakerActivity extends BaseActivity {
 	    			MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(locationPosition);
 	    			mBaiduMap.animateMapStatus(u);
 	                
+	            } else if (extras.containsKey("time")) {
+	            	String str_time = StringUtils.formatTime(extras.getInt("time"));
+	            	tv_timer.setText(str_time);
 	            }
 	        }     
 	    }
@@ -99,29 +110,86 @@ public class SneakerActivity extends BaseActivity {
 			public void onClick(View v) {
 				switch(v.getId()) {
 				case R.id.topbar_opv:
-					finishThis();
+					if (AppContext.isRecordStart) {
+						showDialog();
+					} else {
+						finishThis();
+					}
 					break;
 				case R.id.opv_start:
-					
+					AppContext.isRecordStart = true;
+					if (SneakerRecordService.mRecordHandler != null) {
+						SneakerRecordService.mRecordHandler.sendEmptyMessage(AppContext.MSG_CHECK);
+						btn_start.setVisibility(View.GONE);
+						btn_over.setVisibility(View.VISIBLE);
+						btn_pause.setVisibility(View.VISIBLE);
+					} else {
+						Log.e(TAG, "Service Handler error");
+					}
+					break;
+				case R.id.opv_pause:
+					break;
+				case R.id.opv_over:
+					AppContext.isRecordStart = false;
+					if (SneakerRecordService.mRecordHandler != null) {
+						SneakerRecordService.mRecordHandler.sendEmptyMessage(AppContext.MSG_CHECK);
+						btn_start.setVisibility(View.VISIBLE);
+						btn_over.setVisibility(View.GONE);
+						btn_pause.setVisibility(View.GONE);
+					} else {
+						Log.e(TAG, "Service Handler error");
+					}
 					break;
 				}
 			}
 		};
 	}
 	
+	private void showDialog() {
+		AlertDialog.Builder builder = new Builder(this);
+		builder.setMessage("Sneaker is running, it will run at background");
+		builder.setTitle("tips");
+		
+		builder.setPositiveButton("know", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				finish();
+				}
+			});
+//		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				dialog.dismiss();
+//				}
+//			});
+		builder.create().show();
+	}
 	private void initWidget() {
 		topBar_title = (TextView) findViewById(R.id.topbar_title);
 		topBar_back = (ImageView) findViewById(R.id.topbar_opv);
 		topBar_back.setImageDrawable(getResources().getDrawable(R.drawable.ic_back));
 		topBar_back.setOnClickListener(mOnClickListener);
 		
+		tv_timer = (TextView) findViewById(R.id.opv_timer);
+		
 		btn_start = (Button) findViewById(R.id.opv_start);
 		btn_start.setOnClickListener(mOnClickListener);
+		btn_pause = (Button) findViewById(R.id.opv_pause);
+		btn_pause.setOnClickListener(mOnClickListener);
+		btn_over = (Button) findViewById(R.id.opv_over);
+		btn_over.setOnClickListener(mOnClickListener);
+		
+		if (AppContext.isRecordStart) {
+			btn_start.setVisibility(View.GONE);
+			btn_over.setVisibility(View.VISIBLE);
+			btn_pause.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	private void initMap() {
 		mMapView = (MapView) findViewById(R.id.bmapView);
-		mMapView.showZoomControls(false);
+		mMapView.showZoomControls(true);
 		mBaiduMap = mMapView.getMap();
 		mBaiduMap.setMyLocationEnabled(true);								//开启定位图层
 		
@@ -149,6 +217,7 @@ public class SneakerActivity extends BaseActivity {
 	}
 	
 	private void stopService() {
+		AppContext.isRecordStart = false;
 		Intent Serviceintent = new Intent(this, SneakerRecordService.class);
 		stopService(Serviceintent);
 	}
@@ -181,6 +250,7 @@ public class SneakerActivity extends BaseActivity {
 	
 	protected void finishThis() {
 		this.finish();
+		stopService();
 	}
 	
 
@@ -188,7 +258,7 @@ public class SneakerActivity extends BaseActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		mBaiduMap.setMyLocationEnabled(false);
-		stopService();
+		//stopService();
 		unregisterReceiver(mSneakerReceiver);	// 注销广播接收器
 		mMapView.onDestroy();
 		
@@ -205,4 +275,18 @@ public class SneakerActivity extends BaseActivity {
 		super.onPause();
 		mMapView.onPause();
 	}
+	
+	@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	// TODO Auto-generated method stub
+    	if (keyCode == KeyEvent.KEYCODE_BACK) {
+    		if (AppContext.isRecordStart) {
+				showDialog();
+			} else {
+				finishThis();
+			}
+    		return true;
+    	}
+    	return super.onKeyDown(keyCode, event);
+    }
 }

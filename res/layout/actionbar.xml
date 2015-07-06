@@ -10,7 +10,8 @@
         android:src="@drawable/ic_drawer"
         android:scaleType="fitXY"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:background="@drawable/imgbtn_bg"/>
     <TextView 
         android:id="@+id/topbar_title"
         android:layout_height="wrap_content"

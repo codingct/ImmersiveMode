@@ -24,9 +24,9 @@ public class LocationDao extends AbstractDao<Location, Long> {
     */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Record_id = new Property(1, int.class, "record_id", false, "RECORD_ID");
+        public final static Property Record_id = new Property(1, long.class, "record_id", false, "RECORD_ID");
         public final static Property Latitude = new Property(2, Double.class, "latitude", false, "LATITUDE");
-        public final static Property Lontitude = new Property(3, Double.class, "lontitude", false, "LONTITUDE");
+        public final static Property Longitude = new Property(3, Double.class, "longitude", false, "LONGITUDE");
     };
 
 
@@ -45,7 +45,7 @@ public class LocationDao extends AbstractDao<Location, Long> {
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'RECORD_ID' INTEGER NOT NULL ," + // 1: record_id
                 "'LATITUDE' REAL," + // 2: latitude
-                "'LONTITUDE' REAL);"); // 3: lontitude
+                "'LONGITUDE' REAL);"); // 3: longitude
     }
 
     /** Drops the underlying database table. */
@@ -70,9 +70,9 @@ public class LocationDao extends AbstractDao<Location, Long> {
             stmt.bindDouble(3, latitude);
         }
  
-        Double lontitude = entity.getLontitude();
-        if (lontitude != null) {
-            stmt.bindDouble(4, lontitude);
+        Double longitude = entity.getLongitude();
+        if (longitude != null) {
+            stmt.bindDouble(4, longitude);
         }
     }
 
@@ -87,9 +87,9 @@ public class LocationDao extends AbstractDao<Location, Long> {
     public Location readEntity(Cursor cursor, int offset) {
         Location entity = new Location( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getInt(offset + 1), // record_id
+            cursor.getLong(offset + 1), // record_id
             cursor.isNull(offset + 2) ? null : cursor.getDouble(offset + 2), // latitude
-            cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3) // lontitude
+            cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3) // longitude
         );
         return entity;
     }
@@ -98,9 +98,9 @@ public class LocationDao extends AbstractDao<Location, Long> {
     @Override
     public void readEntity(Cursor cursor, Location entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setRecord_id(cursor.getInt(offset + 1));
+        entity.setRecord_id(cursor.getLong(offset + 1));
         entity.setLatitude(cursor.isNull(offset + 2) ? null : cursor.getDouble(offset + 2));
-        entity.setLontitude(cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3));
+        entity.setLongitude(cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3));
      }
     
     /** @inheritdoc */

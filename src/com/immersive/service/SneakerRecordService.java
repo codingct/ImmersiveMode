@@ -1,10 +1,14 @@
 package com.immersive.service;
 
+import java.lang.ref.WeakReference;
+import java.util.Date;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
 import com.baidu.location.BDLocation;
@@ -13,18 +17,31 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.LocationClientOption.LocationMode;
 import com.code.immersivemode.AppContext;
+import com.code.immersivemode.Location;
 import com.code.immersivemode.R;
+import com.code.immersivemode.Record;
 import com.immersive.activity.SneakerActivity;
 import com.immersive.utils.BitmapUtils;
+import com.immersive.utils.GreenDaoUtils;
+import com.immersive.utils.LocationUtils;
 
 
 public class SneakerRecordService extends SneakerService{
 	public static final String TAG = "SneakerRecordService";
+	private static final int TIME_TICK = 1001;
 	
 	private LocationClient mLocationClient = null;
 	private BDLocationListener mBLocationListener = null;
 	private LocationClientOption mLocationOption = null;
 	
+	public static RecordHandler mRecordHandler = null;
+	public int timer = -1;
+	
+	private GreenDaoUtils mDBUtils = null;
+	private long currentRecordId = -1;
+	
+	private double mLastLatitude = -1;
+	private double mLastLongitude = -1;
 	/** 
      * 返回一个Binder对象 
      */  
@@ -37,7 +54,8 @@ public class SneakerRecordService extends SneakerService{
     public void onCreate() {    
         super.onCreate();  
         //initNotification();
-        
+        mRecordHandler = new RecordHandler(this);
+        mDBUtils = GreenDaoUtils.getInstance(this);
         initLocation();
     }    
 	
@@ -110,22 +128,33 @@ public class SneakerRecordService extends SneakerService{
 			
 			// 发送位置信息
 			try {
-				sendServiceBroadCast(location.getRadius(), location.getDirection(), 
+				sendLocationBroadCast(location.getRadius(), location.getDirection(), 
 						location.getLatitude(), location.getLongitude(), location.getSatelliteNumber());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			if (mLastLatitude == -1 || mLastLongitude == -1) {
+				mLastLatitude = location.getLatitude();
+				mLastLongitude = location.getLongitude();
+				recordLocation(location);
+			}
 			
 			if (AppContext.isRecordStart) {
-				recordLocation();
+				if (LocationUtils.isValid(mLastLatitude, mLastLongitude, location.getLatitude(), location.getLongitude())) {
+					recordLocation(location);
+					mLastLatitude = location.getLatitude();
+					mLastLongitude = location.getLongitude();
+				} else {
+					Log.e(TAG, "InValid Location!");
+				}
 			}
  
 		}
 	}
     
-    private void sendServiceBroadCast(float radius, float direction, double latitude, double lontitude, int num) 
+    private void sendLocationBroadCast(float radius, float direction, double latitude, double lontitude, int num) 
     		throws InterruptedException {  
-        Log.d(TAG, "ServiceThread===>>startLocation() executed===>>线程ID:"+Thread.currentThread().getId());  
+        //Log.d(TAG, "ServiceThread===>>startLocation() executed===>>线程ID:"+Thread.currentThread().getId());  
         Intent intent = new Intent();
         intent.setAction("com.immersive.broadcast.SneakerReceiver");
         intent.putExtra("value", 1);
@@ -137,7 +166,53 @@ public class SneakerRecordService extends SneakerService{
         sendBroadcast(intent);
     }
     
-    private void recordLocation() {
+    public void sendTimerBroadCast(int time) throws InterruptedException {  
+        //Log.d(TAG, "ServiceThread===>>startLocation() executed===>>线程ID:"+Thread.currentThread().getId());  
+        Intent intent = new Intent();
+        intent.setAction("com.immersive.broadcast.SneakerReceiver");
+        intent.putExtra("time", time);
+        sendBroadcast(intent);
+    }
+    
+    private void recordTime() {
+    	Thread mTimer = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				timer = -1;	
+				while (AppContext.isRecordStart) {	
+					mRecordHandler.sendEmptyMessage(TIME_TICK);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+			}
+    		
+    	});
+    	mTimer.start();
+    }
+    
+    private void recordLocation(BDLocation BDlocation) {
+    	Location location = new Location(null, currentRecordId, BDlocation.getLatitude(), BDlocation.getLongitude());
+    	mDBUtils.addToLocationTable(location);
+    	Log.d(TAG, "Location Add");
+    }
+    
+    public void initNewRecord() {
+    	Date now = new Date();
+    	Record record = new Record(null, AppContext.user_id, now);
+    	mDBUtils.addToRecordTable(record);
+    	currentRecordId = mDBUtils.getReocrdIdbyDate(now);
+    	if (currentRecordId == -1) {
+    		Log.e(TAG, "Record_wrong");
+    		return;
+    	} else if (mDBUtils.isRecordSaved(currentRecordId)) {
+    		Log.d(TAG, "new Record Create!");
+    	}
+    	
     	
     }
     
@@ -146,4 +221,34 @@ public class SneakerRecordService extends SneakerService{
         super.onDestroy();  
         mLocationClient.stop();
     }
+    
+    public static class RecordHandler extends Handler {
+        private WeakReference<SneakerRecordService> mOuter;
+ 
+        public RecordHandler(SneakerRecordService service) {
+            mOuter = new WeakReference<SneakerRecordService>(service);
+        }
+ 
+		@Override
+        public void handleMessage(Message msg) {
+        	switch (msg.what) {
+        	case TIME_TICK:
+        		mOuter.get().timer += 1;
+        		try {
+					mOuter.get().sendTimerBroadCast(mOuter.get().timer);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		break;
+        	case AppContext.MSG_CHECK:
+        		if (AppContext.isRecordStart) {
+        			mOuter.get().recordTime();
+        			mOuter.get().initNewRecord();
+        			
+        		}
+        		break;
+        	}
+        }
+	}
 }

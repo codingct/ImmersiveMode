@@ -6,29 +6,29 @@ package com.code.immersivemode;
  */
 public class Record {
 
-    private int record_id;
+    private Long id;
     private int user_id;
-    private String record_time;
+    private java.util.Date record_time;
 
     public Record() {
     }
 
-    public Record(int record_id) {
-        this.record_id = record_id;
+    public Record(Long id) {
+        this.id = id;
     }
 
-    public Record(int record_id, int user_id, String record_time) {
-        this.record_id = record_id;
+    public Record(Long id, int user_id, java.util.Date record_time) {
+        this.id = id;
         this.user_id = user_id;
         this.record_time = record_time;
     }
 
-    public int getRecord_id() {
-        return record_id;
+    public Long getId() {
+        return id;
     }
 
-    public void setRecord_id(int record_id) {
-        this.record_id = record_id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public int getUser_id() {
@@ -39,11 +39,11 @@ public class Record {
         this.user_id = user_id;
     }
 
-    public String getRecord_time() {
+    public java.util.Date getRecord_time() {
         return record_time;
     }
 
-    public void setRecord_time(String record_time) {
+    public void setRecord_time(java.util.Date record_time) {
         this.record_time = record_time;
     }
 

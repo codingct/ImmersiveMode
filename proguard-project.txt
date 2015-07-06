@@ -21,4 +21,10 @@
 
 -keep class com.baidu.** {*;}
 -keep class vi.com.** {*;}    
--dontwarncom.baidu.**
+-dontwarn com.baidu.**
+
+-keep class de.greenrobot.dao.** {*;}
+-dontwarn de.greenrobot.**
+
+-keep class com.androidquery.** {*;}
+-dontwarn com.androidquery.**

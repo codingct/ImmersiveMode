@@ -7,9 +7,9 @@ package com.code.immersivemode;
 public class Location {
 
     private Long id;
-    private int record_id;
+    private long record_id;
     private Double latitude;
-    private Double lontitude;
+    private Double longitude;
 
     public Location() {
     }
@@ -18,11 +18,11 @@ public class Location {
         this.id = id;
     }
 
-    public Location(Long id, int record_id, Double latitude, Double lontitude) {
+    public Location(Long id, long record_id, Double latitude, Double longitude) {
         this.id = id;
         this.record_id = record_id;
         this.latitude = latitude;
-        this.lontitude = lontitude;
+        this.longitude = longitude;
     }
 
     public Long getId() {
@@ -33,11 +33,11 @@ public class Location {
         this.id = id;
     }
 
-    public int getRecord_id() {
+    public long getRecord_id() {
         return record_id;
     }
 
-    public void setRecord_id(int record_id) {
+    public void setRecord_id(long record_id) {
         this.record_id = record_id;
     }
 
@@ -49,12 +49,12 @@ public class Location {
         this.latitude = latitude;
     }
 
-    public Double getLontitude() {
-        return lontitude;
+    public Double getLongitude() {
+        return longitude;
     }
 
-    public void setLontitude(Double lontitude) {
-        this.lontitude = lontitude;
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
 }
