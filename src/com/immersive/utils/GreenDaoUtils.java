@@ -9,6 +9,8 @@ import com.code.immersivemode.Location;
 import com.code.immersivemode.LocationDao;
 import com.code.immersivemode.Record;
 import com.code.immersivemode.RecordDao;
+import com.code.immersivemode.Step;
+import com.code.immersivemode.StepDao;
 import com.code.immersivemode.User;
 import com.code.immersivemode.UserDao;
 
@@ -25,6 +27,7 @@ public class GreenDaoUtils {
     private UserDao userDao;
     private RecordDao recordDao;
     private LocationDao locationDao;
+    private StepDao stepDao;
                                                                                                                                                                                                                                                                                                                                    
     private GreenDaoUtils() {
     	Log.d(TAG, "GreenDaoUtils Create");
@@ -42,6 +45,7 @@ public class GreenDaoUtils {
             instance.userDao = daoSession.getUserDao();
             instance.recordDao = daoSession.getRecordDao();
             instance.locationDao = daoSession.getLocationDao();
+            instance.stepDao = daoSession.getStepDao();
 
         }
         return instance;
@@ -57,6 +61,19 @@ public class GreenDaoUtils {
     public void addToLocationTable(Location item) {
     	locationDao.insert(item);
     }
+    public void addToStepTable(Step item) {
+    	stepDao.insert(item);
+    }
+    
+    /** 更新数据 */
+    public void updateRecord(Record item) {
+    	recordDao.insertOrReplace(item);
+    }
+    
+    public void updateStep(Step item) {
+    	stepDao.insertOrReplace(item);
+    }
+    
     
     /** 查询 */
     public boolean isUserSaved(int id)
@@ -74,6 +91,7 @@ public class GreenDaoUtils {
         qb.buildCount().count();
         return qb.buildCount().count() > 0 ? true : false;
     }
+    
     public List<User> getAllUser() {
         return userDao.loadAll();
     }
@@ -83,6 +101,10 @@ public class GreenDaoUtils {
     public List<Location> getAllLocation() {
     	return locationDao.loadAll();
     }
+    public List<Step> getAllStep() {
+    	return stepDao.loadAll();
+    }
+    
     private List<Record> getRecordByUserId(int Id) {
         QueryBuilder<Record> qb = recordDao.queryBuilder();
         qb.where(RecordDao.Properties.User_id.eq(Id));
@@ -97,6 +119,19 @@ public class GreenDaoUtils {
     {
         QueryBuilder<Record> qb = recordDao.queryBuilder();
         qb.where(RecordDao.Properties.Record_time.eq(date));
+        if (qb.list().size() > 0)
+        {
+            return qb.list().get(0).getId();
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    
+    public long getStepIdByDate(String date) {
+    	QueryBuilder<Step> qb = stepDao.queryBuilder();
+        qb.where(StepDao.Properties.Step_date.eq(date));
         if (qb.list().size() > 0)
         {
             return qb.list().get(0).getId();

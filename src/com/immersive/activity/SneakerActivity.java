@@ -1,6 +1,5 @@
 package com.immersive.activity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.TargetApi;
@@ -49,13 +48,16 @@ public class SneakerActivity extends BaseActivity {
 	
 	private OnClickListener mOnClickListener = null;
 	
+	private View cover = null;
 	private TextView topBar_title = null;
 	private ImageView topBar_back = null;
-	private TextView tv_timer = null;
+	private TextView tv_timer,tv_distance = null;
 	private Button btn_start, btn_pause, btn_over = null;
 	
 	private SneakerReceiver mSneakerReceiver = null;
 	private IntentFilter filter = null;
+	private double distance = 0;
+
 	
 	private class SneakerReceiver extends BroadcastReceiver{
 
@@ -63,7 +65,7 @@ public class SneakerActivity extends BaseActivity {
 	        Bundle extras = intent.getExtras();
 	        if (extras != null) {
 	            if(extras.containsKey("value")){
-	            	
+	            	// 频率为5s一次
 	                // 标记定位位置
 	    			MyLocationData locData = new MyLocationData.Builder()
 	    					.accuracy((Float) extras.get("radius"))
@@ -75,10 +77,15 @@ public class SneakerActivity extends BaseActivity {
 	    			LatLng locationPosition = new LatLng((Double) extras.get("latitude"), (Double) extras.get("lontitude"));
 	    			MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(locationPosition);
 	    			mBaiduMap.animateMapStatus(u);
+	    			if (SneakerRecordService.mPoints != null && AppContext.isRecordStart) {
+	    				UpdatePointsLine(SneakerRecordService.mPoints);
+	    			}
 	                
 	            } else if (extras.containsKey("time")) {
+	            	// 频率为1s一次
+	            	// 更新记录时间
 	            	String str_time = StringUtils.formatTime(extras.getInt("time"));
-	            	tv_timer.setText(str_time);
+	            	tv_timer.setText(getString(R.string.time) + "   " + str_time);
 	            }
 	        }     
 	    }
@@ -119,10 +126,11 @@ public class SneakerActivity extends BaseActivity {
 				case R.id.opv_start:
 					AppContext.isRecordStart = true;
 					if (SneakerRecordService.mRecordHandler != null) {
-						SneakerRecordService.mRecordHandler.sendEmptyMessage(AppContext.MSG_CHECK);
+						SneakerRecordService.mRecordHandler.sendEmptyMessage(SneakerRecordService.MSG_CHECK);
 						btn_start.setVisibility(View.GONE);
 						btn_over.setVisibility(View.VISIBLE);
 						btn_pause.setVisibility(View.VISIBLE);
+						tv_distance.setText(getString(R.string.distance) + "   " + "N/A");
 					} else {
 						Log.e(TAG, "Service Handler error");
 					}
@@ -132,13 +140,17 @@ public class SneakerActivity extends BaseActivity {
 				case R.id.opv_over:
 					AppContext.isRecordStart = false;
 					if (SneakerRecordService.mRecordHandler != null) {
-						SneakerRecordService.mRecordHandler.sendEmptyMessage(AppContext.MSG_CHECK);
+						SneakerRecordService.mRecordHandler.sendEmptyMessage(SneakerRecordService.MSG_CHECK);
 						btn_start.setVisibility(View.VISIBLE);
 						btn_over.setVisibility(View.GONE);
 						btn_pause.setVisibility(View.GONE);
 					} else {
 						Log.e(TAG, "Service Handler error");
 					}
+					cover.setVisibility(View.VISIBLE);
+					Intent resultIntent = new Intent(SneakerActivity.this, ResultActivity.class);
+					startActivity(resultIntent);
+					
 					break;
 				}
 			}
@@ -172,6 +184,8 @@ public class SneakerActivity extends BaseActivity {
 		topBar_back.setOnClickListener(mOnClickListener);
 		
 		tv_timer = (TextView) findViewById(R.id.opv_timer);
+		tv_distance = (TextView) findViewById(R.id.opv_distance);
+		cover = (View) findViewById(R.id.cover);
 		
 		btn_start = (Button) findViewById(R.id.opv_start);
 		btn_start.setOnClickListener(mOnClickListener);
@@ -194,8 +208,9 @@ public class SneakerActivity extends BaseActivity {
 		mBaiduMap.setMyLocationEnabled(true);								//开启定位图层
 		
 		mMapController = new MapController(mBaiduMap);
-		MapStatusUpdate u = MapStatusUpdateFactory.zoomTo(17);
+		MapStatusUpdate u = MapStatusUpdateFactory.zoomTo(18);
 		mBaiduMap.animateMapStatus(u);
+		
 	}
 	
 	
@@ -214,6 +229,13 @@ public class SneakerActivity extends BaseActivity {
 		} else {
 			Log.e("service", "service exist");
 		}
+		if (SneakerRecordService.mLastLatitude != -1 && SneakerRecordService.mLastLongitude != -1) {
+			MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(
+					new LatLng(SneakerRecordService.mLastLatitude,SneakerRecordService.mLastLongitude));
+			Log.e(TAG, "find last point");
+			mBaiduMap.animateMapStatus(update);
+		}
+
 	}
 	
 	private void stopService() {
@@ -223,30 +245,35 @@ public class SneakerActivity extends BaseActivity {
 	}
 	
 	
-	private void UpdatePointsLine() {
+	private void UpdatePointsLine(List<LatLng> mPoints) {
 		/* 测试数据 */
-		LatLng pt1 = new LatLng(23.057037, 113.408722);
-		LatLng pt2 = new LatLng(23.058037, 113.405722);
-		LatLng pt3 = new LatLng(23.059037, 113.407722);
-		LatLng pt4 = new LatLng(23.056037, 113.409722);
-		LatLng pt5 = new LatLng(23.056037, 113.401722);
-		LatLng pt6 = new LatLng(23.053037, 113.403722);
-		LatLng pt7 = new LatLng(23.057037, 113.404722);
-		List<LatLng> mPoints = new ArrayList<LatLng>();
-		mPoints.add(pt1);
-		mPoints.add(pt2);
-		mPoints.add(pt3);
-		mPoints.add(pt4);
-		mPoints.add(pt5);
-		mPoints.add(pt6);
-		mPoints.add(pt7);
-		
-
-		MapStatusUpdate u = MapStatusUpdateFactory.newLatLngZoom(pt1, 15);
-		mBaiduMap.animateMapStatus(u);
+//		LatLng pt1 = new LatLng(23.057037, 113.408722);
+//		LatLng pt2 = new LatLng(23.058037, 113.405722);
+//		LatLng pt3 = new LatLng(23.059037, 113.407722);
+//		LatLng pt4 = new LatLng(23.056037, 113.409722);
+//		LatLng pt5 = new LatLng(23.056037, 113.401722);
+//		LatLng pt6 = new LatLng(23.053037, 113.403722);
+//		LatLng pt7 = new LatLng(23.057037, 113.404722);
+//		List<LatLng> mPoints = new ArrayList<LatLng>();
+//		mPoints.add(pt1);
+//		mPoints.add(pt2);
+//		mPoints.add(pt3);
+//		mPoints.add(pt4);
+//		mPoints.add(pt5);
+//		mPoints.add(pt6);
+//		mPoints.add(pt7);
+//		
+		if (mPoints.size() < 2) {
+			Log.e(TAG, "mPoint size invalid==>" + mPoints.size());
+			tv_distance.setText(getString(R.string.distance) + "   " + "N/A");
+			return;
+		}
+		mMapController.clearOverlay();
 		mMapController.overlayPointLine(mPoints);
-		mMapController.calDistance(mPoints);
+		distance = mMapController.calDistance(mPoints);
+		tv_distance.setText(getString(R.string.distance) + "   " + distance);
 	}
+	
 	
 	protected void finishThis() {
 		this.finish();

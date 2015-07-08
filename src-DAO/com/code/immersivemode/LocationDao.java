@@ -42,7 +42,7 @@ public class LocationDao extends AbstractDao<Location, Long> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'LOCATION' (" + //
-                "'_id' INTEGER PRIMARY KEY ," + // 0: id
+                "'_id' INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "'RECORD_ID' INTEGER NOT NULL ," + // 1: record_id
                 "'LATITUDE' REAL," + // 2: latitude
                 "'LONGITUDE' REAL);"); // 3: longitude

@@ -9,6 +9,9 @@ public class Record {
     private Long id;
     private int user_id;
     private java.util.Date record_time;
+    private Integer time;
+    private Integer step;
+    private Double distance;
 
     public Record() {
     }
@@ -17,10 +20,13 @@ public class Record {
         this.id = id;
     }
 
-    public Record(Long id, int user_id, java.util.Date record_time) {
+    public Record(Long id, int user_id, java.util.Date record_time, Integer time, Integer step, Double distance) {
         this.id = id;
         this.user_id = user_id;
         this.record_time = record_time;
+        this.time = time;
+        this.step = step;
+        this.distance = distance;
     }
 
     public Long getId() {
@@ -45,6 +51,30 @@ public class Record {
 
     public void setRecord_time(java.util.Date record_time) {
         this.record_time = record_time;
+    }
+
+    public Integer getTime() {
+        return time;
+    }
+
+    public void setTime(Integer time) {
+        this.time = time;
+    }
+
+    public Integer getStep() {
+        return step;
+    }
+
+    public void setStep(Integer step) {
+        this.step = step;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
 }

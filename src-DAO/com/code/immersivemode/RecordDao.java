@@ -26,6 +26,9 @@ public class RecordDao extends AbstractDao<Record, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property User_id = new Property(1, int.class, "user_id", false, "USER_ID");
         public final static Property Record_time = new Property(2, java.util.Date.class, "record_time", false, "RECORD_TIME");
+        public final static Property Time = new Property(3, Integer.class, "time", false, "TIME");
+        public final static Property Step = new Property(4, Integer.class, "step", false, "STEP");
+        public final static Property Distance = new Property(5, Double.class, "distance", false, "DISTANCE");
     };
 
 
@@ -41,9 +44,12 @@ public class RecordDao extends AbstractDao<Record, Long> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'RECORD' (" + //
-                "'_id' INTEGER PRIMARY KEY ," + // 0: id
+                "'_id' INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "'USER_ID' INTEGER NOT NULL ," + // 1: user_id
-                "'RECORD_TIME' INTEGER);"); // 2: record_time
+                "'RECORD_TIME' INTEGER," + // 2: record_time
+                "'TIME' INTEGER," + // 3: time
+                "'STEP' INTEGER," + // 4: step
+                "'DISTANCE' REAL);"); // 5: distance
     }
 
     /** Drops the underlying database table. */
@@ -67,6 +73,21 @@ public class RecordDao extends AbstractDao<Record, Long> {
         if (record_time != null) {
             stmt.bindLong(3, record_time.getTime());
         }
+ 
+        Integer time = entity.getTime();
+        if (time != null) {
+            stmt.bindLong(4, time);
+        }
+ 
+        Integer step = entity.getStep();
+        if (step != null) {
+            stmt.bindLong(5, step);
+        }
+ 
+        Double distance = entity.getDistance();
+        if (distance != null) {
+            stmt.bindDouble(6, distance);
+        }
     }
 
     /** @inheritdoc */
@@ -81,7 +102,10 @@ public class RecordDao extends AbstractDao<Record, Long> {
         Record entity = new Record( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getInt(offset + 1), // user_id
-            cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)) // record_time
+            cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)), // record_time
+            cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3), // time
+            cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // step
+            cursor.isNull(offset + 5) ? null : cursor.getDouble(offset + 5) // distance
         );
         return entity;
     }
@@ -92,6 +116,9 @@ public class RecordDao extends AbstractDao<Record, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setUser_id(cursor.getInt(offset + 1));
         entity.setRecord_time(cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)));
+        entity.setTime(cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3));
+        entity.setStep(cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4));
+        entity.setDistance(cursor.isNull(offset + 5) ? null : cursor.getDouble(offset + 5));
      }
     
     /** @inheritdoc */

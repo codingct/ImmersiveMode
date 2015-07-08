@@ -18,6 +18,9 @@
     <string name="start">Start</string>
     <string name="pause">Pause</string>
     <string name="over">Over</string>
+    <string name="time">Time: </string>
+    <string name="distance">Distance: </string>
+    <string name="share">Share</string>
     
     <string name="exit_again">press again to exit</string>
     

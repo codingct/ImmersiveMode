@@ -6,4 +6,6 @@
     <color name="white">#ffffff</color>
     <!-- http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
     <color name="material_blue_500">#5677fc</color>
+    
+    <color name="black_half">#bb000000</color>
 </resources>

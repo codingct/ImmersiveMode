@@ -1,7 +1,9 @@
 package com.immersive.service;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -16,6 +18,7 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.LocationClientOption.LocationMode;
+import com.baidu.mapapi.model.LatLng;
 import com.code.immersivemode.AppContext;
 import com.code.immersivemode.Location;
 import com.code.immersivemode.R;
@@ -28,7 +31,8 @@ import com.immersive.utils.LocationUtils;
 
 public class SneakerRecordService extends SneakerService{
 	public static final String TAG = "SneakerRecordService";
-	private static final int TIME_TICK = 1001;
+	public static final int TIME_TICK = 1001;
+	public static final int MSG_CHECK = 1000;
 	
 	private LocationClient mLocationClient = null;
 	private BDLocationListener mBLocationListener = null;
@@ -40,8 +44,10 @@ public class SneakerRecordService extends SneakerService{
 	private GreenDaoUtils mDBUtils = null;
 	private long currentRecordId = -1;
 	
-	private double mLastLatitude = -1;
-	private double mLastLongitude = -1;
+	public static double mLastLatitude = -1;
+	public static double mLastLongitude = -1;
+	public static List<LatLng> mPoints = null;
+	
 	/** 
      * 返回一个Binder对象 
      */  
@@ -50,15 +56,25 @@ public class SneakerRecordService extends SneakerService{
         return null;  
     }  
 	
+    @Override  
+    public int onStartCommand(Intent intent, int flags, int startId) {  
+        super.onStartCommand(intent, flags, startId);  
+        
+        return START_STICKY;  
+    }   
+    
 	@Override    
     public void onCreate() {    
         super.onCreate();  
         //initNotification();
+       
         mRecordHandler = new RecordHandler(this);
         mDBUtils = GreenDaoUtils.getInstance(this);
+        mPoints = new ArrayList<LatLng>();
         initLocation();
     }    
 	
+	@SuppressWarnings("unused")
 	private void initNotification() {
 		Notification.Builder builder = new Notification.Builder(this);
         Intent notificationIntent = new Intent(this, SneakerActivity.class);
@@ -133,14 +149,14 @@ public class SneakerRecordService extends SneakerService{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (mLastLatitude == -1 || mLastLongitude == -1) {
-				mLastLatitude = location.getLatitude();
-				mLastLongitude = location.getLongitude();
-				recordLocation(location);
-			}
+			
 			
 			if (AppContext.isRecordStart) {
-				if (LocationUtils.isValid(mLastLatitude, mLastLongitude, location.getLatitude(), location.getLongitude())) {
+				if (mLastLatitude == -1 || mLastLongitude == -1) {	// 记录第一个点位置
+					mLastLatitude = location.getLatitude();
+					mLastLongitude = location.getLongitude();
+					recordLocation(location);
+				} else if (LocationUtils.isValid(mLastLatitude, mLastLongitude, location.getLatitude(), location.getLongitude())) {
 					recordLocation(location);
 					mLastLatitude = location.getLatitude();
 					mLastLongitude = location.getLongitude();
@@ -199,11 +215,15 @@ public class SneakerRecordService extends SneakerService{
     	Location location = new Location(null, currentRecordId, BDlocation.getLatitude(), BDlocation.getLongitude());
     	mDBUtils.addToLocationTable(location);
     	Log.d(TAG, "Location Add");
+    	LatLng point = new LatLng(BDlocation.getLatitude(), BDlocation.getLongitude());
+    	mPoints.add(point);
+    	
     }
     
     public void initNewRecord() {
+    	currentRecordId = -1;
     	Date now = new Date();
-    	Record record = new Record(null, AppContext.user_id, now);
+    	Record record = new Record(null, AppContext.user_id, now, 0, 0, 0d);
     	mDBUtils.addToRecordTable(record);
     	currentRecordId = mDBUtils.getReocrdIdbyDate(now);
     	if (currentRecordId == -1) {
@@ -212,7 +232,7 @@ public class SneakerRecordService extends SneakerService{
     	} else if (mDBUtils.isRecordSaved(currentRecordId)) {
     		Log.d(TAG, "new Record Create!");
     	}
-    	
+    	mPoints.clear();
     	
     }
     
@@ -241,11 +261,15 @@ public class SneakerRecordService extends SneakerService{
 					e.printStackTrace();
 				}
         		break;
-        	case AppContext.MSG_CHECK:
+        	case MSG_CHECK:
         		if (AppContext.isRecordStart) {
         			mOuter.get().recordTime();
-        			mOuter.get().initNewRecord();
-        			
+        			mOuter.get().initNewRecord();		
+        		} else {
+        			mOuter.get();
+					// 重置位置信息
+        			SneakerRecordService.mLastLatitude = -1;
+					SneakerRecordService.mLastLongitude = -1;
         		}
         		break;
         	}

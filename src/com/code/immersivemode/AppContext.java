@@ -1,23 +1,31 @@
 package com.code.immersivemode;
 
+import java.io.File;
+
 import com.androidquery.callback.BitmapAjaxCallback;
 
 
 import com.baidu.mapapi.SDKInitializer;
 import com.code.immersivemode.DaoMaster.OpenHelper;
-import com.immersive.service.SneakerRecordService;
 import com.immersive.utils.GreenDaoUtils;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 
 public class AppContext extends Application {
 	private static AppContext mInstance;
+	
 	public static final String TAG = "AppContext";
 	private static String DATABASE_NAME = "sneaker";
-	public static final int MSG_CHECK = 10001;
+	private final static String PATH = Environment.getExternalStorageDirectory() + "/Sneaker";
+	private final static String PATH_SCREENSHOT = PATH + File.separator + "/ScreenShot";
+	
+	public static boolean debug = true; 
+	
+	
 	
 	public static boolean isRecordStart = false;
 	public static int user_id;
@@ -31,7 +39,8 @@ public class AppContext extends Application {
 		super.onCreate();
 		mInstance = this;
 		SDKInitializer.initialize(getApplicationContext());
-		TestDBCase();
+		testDBCase();
+		initFolder();
 	}
 	
 	public static AppContext getAppContext() {
@@ -43,7 +52,25 @@ public class AppContext extends Application {
         BitmapAjaxCallback.clearCache();
     }
 	
-	public void TestDBCase() {
+	public void initFolder() {
+		File mFolder = new File(PATH);
+		if (!mFolder.exists()) {
+			Log.v(TAG, "Sneaker mkdir");
+			mFolder.mkdir();
+		} else {
+			Log.v(TAG, "Sneaker already mkdir");
+		}
+		mFolder = new File(PATH_SCREENSHOT);
+		if (!mFolder.exists()) {
+			Log.v(TAG, "ScreenShot mkdir");
+			mFolder.mkdir();
+		} else {
+			Log.v(TAG, "ScreenShot already mkdir");
+		}
+		
+	}
+	
+	public void testDBCase() {
 		if(GreenDaoUtils.getInstance(getAppContext()).isUserSaved(1)) {
 			Log.e(TAG,"user exist");
 			return;

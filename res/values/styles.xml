@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -24,6 +24,20 @@
     </style>
    
     <drawable name="BackBar">#eb665e</drawable>
+    
+    <style name="AppDialog" parent="android:style/Theme.Dialog">  
+  
+        <!-- 背景颜色及透明程度 -->  
+        <item name="android:windowBackground">@android:color/transparent</item>  
+        <!-- 是否有标题 -->  
+        <item name="android:windowNoTitle">false</item>  
+        <!-- 是否浮现在activity之上 -->  
+        <item name="android:windowIsFloating">true</item>  
+        <!-- 是否模糊 -->  
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:adjustViewBounds">true</item>  
+        <item name="android:windowFrame">@null</item>
+    </style>  
   
 
 </resources>

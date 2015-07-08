@@ -11,6 +11,7 @@ import com.immersive.helper.Tab1Helper;
 import com.immersive.helper.Tab2Helper;
 import com.immersive.service.SneakerGuardService;
 import com.immersive.utils.ScreenShotUtils;
+import com.immersive.utils.ServiceUtils;
 import com.immersive.utils.ShareUtils;
 
 import android.annotation.SuppressLint;
@@ -29,6 +30,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -116,8 +118,13 @@ public class MainActivity extends BaseActivity {
     }
 	
 	private void initService() {
+		if (ServiceUtils.isWorked(this, "com.immersive.service.SneakerGuardService")) {
+			Log.e(TAG, "SneakerGuardService already run");
+			return;
+		}
 		Intent Serviceintent = new Intent(this, SneakerGuardService.class);
 	    startService(Serviceintent);
+	    Log.e(TAG, "SneakerGuardService create");
 	}
 	
 	private void initWidget() {
