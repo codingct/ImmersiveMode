@@ -144,6 +144,11 @@ public class ResultActivity extends BaseActivity {
 		this.finish();
 	}
 	
+	@Override
+	public void finish() {
+		super.finish();
+		this.setResult(RESULT_OK);
+	}
 
 	@Override
 	protected void onDestroy() {

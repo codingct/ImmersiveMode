@@ -20,7 +20,7 @@ public class AppContext extends Application {
 	
 	public static final String TAG = "AppContext";
 	private static String DATABASE_NAME = "sneaker";
-	private final static String PATH = Environment.getExternalStorageDirectory() + "/Sneaker";
+	public final static String PATH = Environment.getExternalStorageDirectory() + "/Sneaker";
 	private final static String PATH_SCREENSHOT = PATH + File.separator + "/ScreenShot";
 	
 	public static boolean debug = true; 

@@ -23,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
@@ -149,7 +150,7 @@ public class SneakerActivity extends BaseActivity {
 					}
 					cover.setVisibility(View.VISIBLE);
 					Intent resultIntent = new Intent(SneakerActivity.this, ResultActivity.class);
-					startActivity(resultIntent);
+					startActivityForResult(resultIntent, 1);
 					
 					break;
 				}
@@ -279,6 +280,11 @@ public class SneakerActivity extends BaseActivity {
 		this.finish();
 		stopService();
 	}
+	
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        cover.setVisibility(View.GONE);
+    }
 	
 
 	@Override

@@ -115,32 +115,26 @@ public class GreenDaoUtils {
             return null;
         }
     }
-    public long getReocrdIdbyDate(Date date)
-    {
-        QueryBuilder<Record> qb = recordDao.queryBuilder();
-        qb.where(RecordDao.Properties.Record_time.eq(date));
-        if (qb.list().size() > 0)
-        {
-            return qb.list().get(0).getId();
-        }
-        else
-        {
-            return -1;
-        }
-    }
-    
-    public long getStepIdByDate(String date) {
-    	QueryBuilder<Step> qb = stepDao.queryBuilder();
-        qb.where(StepDao.Properties.Step_date.eq(date));
-        if (qb.list().size() > 0)
-        {
-            return qb.list().get(0).getId();
-        }
-        else
-        {
-            return -1;
-        }
-    }
+
+	public long getReocrdIdbyDate(Date date) {
+		QueryBuilder<Record> qb = recordDao.queryBuilder();
+		qb.where(RecordDao.Properties.Record_time.eq(date));
+		if (qb.list().size() > 0) {
+			return qb.list().get(0).getId();
+		} else {
+			return -1;
+		}
+	}
+
+	public long getStepIdByDate(String date) {
+		QueryBuilder<Step> qb = stepDao.queryBuilder();
+		qb.where(StepDao.Properties.Step_date.eq(date));
+		if (qb.list().size() > 0) {
+			return qb.list().get(0).getId();
+		} else {
+			return -1;
+		}
+	}
     private List<Location> getLocationByRecordId(int Record_id) {
     	 QueryBuilder<Location> qb = locationDao.queryBuilder();
          qb.where(LocationDao.Properties.Record_id.eq(Record_id));
@@ -169,6 +163,15 @@ public class GreenDaoUtils {
         bd.executeDeleteWithoutDetachingEntities();
     }
     
+    public Step getStepById(long Id) {
+        QueryBuilder<Step> qb = stepDao.queryBuilder();
+        qb.where(StepDao.Properties.Id.eq(Id));
+        if (qb.list().size() > 0) {
+        	return qb.list().get(0);
+        } else {
+            return null;
+        }
+    }
     
     /** 工具类外部接口 */
     public List<Record> requestFindRecordByUser(int Id) {

@@ -64,11 +64,12 @@ public class MainActivity extends BaseActivity {
     private int offset = 0;// 动画图片偏移量  
     private int currIndex = 0;// 当前页卡编号  
     private int bmpW;// 动画图片宽度  
-    private View view1,view2,view3;//各个页卡  
+    private View view1, view2, view3;//各个页卡  
     private DrawerLayout mDrawerLayout = null;
     private boolean isDrawOpened = false;
     private static boolean canExit = false;
     
+    public View cover = null;
     public final static String TAG = "MainActivity";
     private OnItemClickListener mDrawerItemClickListener = null;
     private OnClickListener mOnClickListener = null;
@@ -83,8 +84,7 @@ public class MainActivity extends BaseActivity {
 		 requestWindowFeature(Window.FEATURE_NO_TITLE);
 		 setContentView(R.layout.page_main);
 		 
-		 initListener();
-		 initCursor();  
+		 initListener(); 
 	     initTab();  
 	     initViewPager();
 	     initDrawer();
@@ -130,6 +130,8 @@ public class MainActivity extends BaseActivity {
 	private void initWidget() {
 		FABAdd = (Button) findViewById(R.id.fab_add);
 		FABAdd.setOnClickListener(mOnClickListener);
+		
+		cover = (View) findViewById(R.id.cover);
 	}
 	
 	private void initListener() {
@@ -142,6 +144,8 @@ public class MainActivity extends BaseActivity {
 				ShareUtils.shareMsg("测试分享", "测试分享", ImgPath, MainActivity.this);
 			}
 		};
+		
+		
 		mOnClickListener = new OnClickListener() {
 			
 			@Override
@@ -154,8 +158,8 @@ public class MainActivity extends BaseActivity {
 					
 				}
 			}
-			
 		};
+		
 		
 		
 	}
@@ -224,8 +228,8 @@ public class MainActivity extends BaseActivity {
         views.add(view1);  
         views.add(view2);  
         views.add(view3);  
-        Tab1Helper helper1 = new Tab1Helper(view1);
-        Tab2Helper helper2 = new Tab2Helper(view2);
+        Tab1Helper helper1 = new Tab1Helper(view1, this);
+        Tab2Helper helper2 = new Tab2Helper(view2, this);
         helper1.init();
         helper2.init();
         viewPager.setAdapter(new MyViewPagerAdapter(views));  
@@ -241,9 +245,7 @@ public class MainActivity extends BaseActivity {
         textView1.setOnClickListener(new MyOnClickListener(0));  
         textView2.setOnClickListener(new MyOnClickListener(1));  
         textView3.setOnClickListener(new MyOnClickListener(2));  
-    }  
-  
-    private void initCursor() {  
+        
         imageView= (ImageView) findViewById(R.id.cursor);  
         bmpW = BitmapFactory.decodeResource(getResources(), R.drawable.cursor).getWidth();// 获取图片宽度  
         DisplayMetrics dm = new DisplayMetrics();  
@@ -252,8 +254,13 @@ public class MainActivity extends BaseActivity {
         offset = (screenW / 3 - bmpW) / 2;// 计算偏移量  
         Matrix matrix = new Matrix();  
         matrix.postTranslate(offset, 0);  
-        imageView.setImageMatrix(matrix);// 设置动画初始位置  
+        imageView.setImageMatrix(matrix);// 设置动画初始位置 
     }  
+  
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        cover.setVisibility(View.GONE);
+    }
     
     private class MyOnClickListener implements OnClickListener{  
         private int index=0;  

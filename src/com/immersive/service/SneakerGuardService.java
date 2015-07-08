@@ -69,7 +69,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 	/** 
 	 *  
 	 * @ClassName: AlarmReceiver   
-	 * @Description: 时间到了会进入这个广播
+	 * @Description: 整点会收到广播
 	 * @author tong.chen
 	 * @date 2013-11-25 下午4:44:30   
 	 * 
@@ -104,16 +104,22 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 			if (dailyStep == null) {
 				Date today = new Date();
 				SimpleDateFormat format = new SimpleDateFormat("yyyy:MM:dd");
-
 				String date = format.format(today);
 				Log.e(TAG, "Date:" + date);
 				
-				dailyStep = new Step(null, AppContext.user_id, date, 
-						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0);
-				mDBUtils.addToStepTable(dailyStep);
 				step_id = mDBUtils.getStepIdByDate(date);
-				dailyStep.setId(step_id);
-				Log.e(TAG, "new Step Add: id==>"+step_id);
+				if (step_id != -1) {
+					Log.e(TAG, "Toaday Step exist: id==>" + step_id);
+					dailyStep = mDBUtils.getStepById(step_id);
+					
+				} else {
+					dailyStep = new Step(null, AppContext.user_id, date, 
+							0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+					mDBUtils.addToStepTable(dailyStep);
+					step_id = mDBUtils.getStepIdByDate(date);
+					dailyStep.setId(step_id);
+					Log.e(TAG, "new Step Add: id==>" + step_id);
+				}
 			}
 			
 			Field stepField = Step.class.getDeclaredField("step_"+time);
@@ -242,7 +248,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 					turn_x.add(nature_x);
 					turn_z.add(nature_z);
 					if (turn_y.size() > 20) {
-						Log.e(TAG, turn_y.toString());
+//						Log.e(TAG, turn_y.toString());
 						step += mSneakerCore.calStep2(turn_y);
 						turn_y.clear();
 						turn_x.clear();

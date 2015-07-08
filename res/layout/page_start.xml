@@ -3,7 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/ic_splash"  >
+    android:fitsSystemWindows="true"
+    android:background="@color/app_theme_color"  >
+    <ImageView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/ic_splash"/>
     
 
 </LinearLayout>

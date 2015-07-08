@@ -86,6 +86,13 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name="com.immersive.activity.ChartActivity"
+            android:theme="@style/AppDialog"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+         </activity>
     </application>
 
 </manifest>
