@@ -48,6 +48,9 @@ public class SneakerRecordService extends SneakerService{
 	public static double mLastLongitude = -1;
 	public static List<LatLng> mPoints = null;
 	
+	private Date now = null;
+	private long keytime = -1;
+	
 	/** 
      * 返回一个Binder对象 
      */  
@@ -190,6 +193,14 @@ public class SneakerRecordService extends SneakerService{
         sendBroadcast(intent);
     }
     
+    public void sendInfoBroadCase() throws InterruptedException {
+    	 Intent intent = new Intent();
+         intent.setAction("com.immersive.broadcast.SneakerReceiver");
+         intent.putExtra("info", keytime);
+         sendBroadcast(intent);
+         keytime = -1;
+    }
+    
     private void recordTime() {
     	Thread mTimer = new Thread(new Runnable() {
 			@Override
@@ -222,19 +233,21 @@ public class SneakerRecordService extends SneakerService{
     
     public void initNewRecord() {
     	currentRecordId = -1;
-    	Date now = new Date();
+    	now = new Date();
     	Record record = new Record(null, AppContext.user_id, now, 0, 0, 0d);
     	mDBUtils.addToRecordTable(record);
+    	keytime = now.getTime();
     	currentRecordId = mDBUtils.getReocrdIdbyDate(now);
     	if (currentRecordId == -1) {
     		Log.e(TAG, "Record_wrong");
     		return;
     	} else if (mDBUtils.isRecordSaved(currentRecordId)) {
     		Log.d(TAG, "new Record Create!");
+    		
     	}
-    	mPoints.clear();
-    	
+    	mPoints.clear(); 	
     }
+    
     
     @Override    
     public void onDestroy() {    
@@ -263,13 +276,22 @@ public class SneakerRecordService extends SneakerService{
         		break;
         	case MSG_CHECK:
         		if (AppContext.isRecordStart) {
+        			// 记录开始
         			mOuter.get().recordTime();
         			mOuter.get().initNewRecord();		
         		} else {
-        			mOuter.get();
+        			// 记录结束
+        			try {
+						mOuter.get().sendInfoBroadCase();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        			
 					// 重置位置信息
         			SneakerRecordService.mLastLatitude = -1;
 					SneakerRecordService.mLastLongitude = -1;
+					
         		}
         		break;
         	}

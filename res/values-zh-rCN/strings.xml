@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sneaker</string>
+    
+    <string name="tab1">日常</string>
+    <string name="tab2">跑步</string>
+    <string name="tab3">社区</string>
+    
+    <string name="drawer_new">展示</string>
+    <string name="drawer_favorite">收藏</string>
+    <string name="drawer_hot">热门</string>
+    <string name="drawer_random">随便看看</string>
+    <string name="drawer_feedback">反馈</string>
+    <string name="drawer_upload">上传</string>
+    <string name="drawer_setting">设置</string>
+    
+    <string name="back">返回</string>
+    <string name="start">开始</string>
+    <string name="pause">暂停</string>
+    <string name="over">结束</string>
+    <string name="time">时间: </string>
+    <string name="distance">总路程: </string>
+    <string name="share">分享</string>
+    <string name="step">总步数:</string>
+    
+    <string name="exit_again">再按一次退出</string>
+</resources>

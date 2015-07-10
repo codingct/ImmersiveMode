@@ -9,10 +9,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import android.view.Window;
-import android.view.WindowManager;
 
 
 public class SplashActivity extends BaseActivity {
@@ -20,11 +16,7 @@ public class SplashActivity extends BaseActivity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
 		 super.onCreate(savedInstanceState);
-		 if(VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-			 getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-			 getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		 }
-		 requestWindowFeature(Window.FEATURE_NO_TITLE); 
+		 
 		 setContentView(R.layout.page_start);
 		 
 		 MyThread t = new MyThread();
@@ -32,6 +24,7 @@ public class SplashActivity extends BaseActivity {
 		 
 	
 	}
+	
 	
 	private class MyThread extends Thread {
 		@Override

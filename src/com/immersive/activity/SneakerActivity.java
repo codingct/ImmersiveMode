@@ -1,5 +1,10 @@
 package com.immersive.activity;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import android.annotation.TargetApi;
@@ -10,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Build.VERSION;
@@ -23,8 +29,10 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BaiduMap.SnapshotReadyCallback;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
@@ -32,8 +40,10 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
+import com.code.immersivemode.Record;
 import com.immersive.controller.MapController;
 import com.immersive.service.SneakerRecordService;
+import com.immersive.utils.GreenDaoUtils;
 import com.immersive.utils.ServiceUtils;
 import com.immersive.utils.StringUtils;
 
@@ -43,6 +53,7 @@ public class SneakerActivity extends BaseActivity {
 	public static final String TAG = "SneakerActivity";
 	private MapView mMapView = null;
 	private BaiduMap mBaiduMap = null;
+	
 	public static final int TYPE_NORMAL = BaiduMap.MAP_TYPE_NORMAL;
 	public static final int TYPE_SATELLITE = BaiduMap.MAP_TYPE_SATELLITE;
 	private MapController mMapController = null;
@@ -58,6 +69,10 @@ public class SneakerActivity extends BaseActivity {
 	private SneakerReceiver mSneakerReceiver = null;
 	private IntentFilter filter = null;
 	private double distance = 0;
+	private long keytime = -1;
+	
+	private GreenDaoUtils mDBUtils = null;
+	private int sum_time = 0;
 
 	
 	private class SneakerReceiver extends BroadcastReceiver{
@@ -85,8 +100,15 @@ public class SneakerActivity extends BaseActivity {
 	            } else if (extras.containsKey("time")) {
 	            	// 频率为1s一次
 	            	// 更新记录时间
-	            	String str_time = StringUtils.formatTime(extras.getInt("time"));
+	            	sum_time = extras.getInt("time");
+	            	String str_time = StringUtils.formatTime(sum_time);
 	            	tv_timer.setText(getString(R.string.time) + "   " + str_time);
+	            
+	            } else if (extras.containsKey("info")) {
+	            	keytime = extras.getLong("info");
+	            	SaveMapShot();
+	            	updateRecord();
+	            	
 	            }
 	        }     
 	    }
@@ -96,14 +118,10 @@ public class SneakerActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-			getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-			getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		}
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 		setContentView(R.layout.page_sneaker);
+		mDBUtils = GreenDaoUtils.getInstance(this);
+		
 		initListener();
 		initWidget();
 		initMap();
@@ -149,8 +167,7 @@ public class SneakerActivity extends BaseActivity {
 						Log.e(TAG, "Service Handler error");
 					}
 					cover.setVisibility(View.VISIBLE);
-					Intent resultIntent = new Intent(SneakerActivity.this, ResultActivity.class);
-					startActivityForResult(resultIntent, 1);
+					
 					
 					break;
 				}
@@ -247,23 +264,7 @@ public class SneakerActivity extends BaseActivity {
 	
 	
 	private void UpdatePointsLine(List<LatLng> mPoints) {
-		/* 测试数据 */
-//		LatLng pt1 = new LatLng(23.057037, 113.408722);
-//		LatLng pt2 = new LatLng(23.058037, 113.405722);
-//		LatLng pt3 = new LatLng(23.059037, 113.407722);
-//		LatLng pt4 = new LatLng(23.056037, 113.409722);
-//		LatLng pt5 = new LatLng(23.056037, 113.401722);
-//		LatLng pt6 = new LatLng(23.053037, 113.403722);
-//		LatLng pt7 = new LatLng(23.057037, 113.404722);
-//		List<LatLng> mPoints = new ArrayList<LatLng>();
-//		mPoints.add(pt1);
-//		mPoints.add(pt2);
-//		mPoints.add(pt3);
-//		mPoints.add(pt4);
-//		mPoints.add(pt5);
-//		mPoints.add(pt6);
-//		mPoints.add(pt7);
-//		
+		
 		if (mPoints.size() < 2) {
 			Log.e(TAG, "mPoint size invalid==>" + mPoints.size());
 			tv_distance.setText(getString(R.string.distance) + "   " + "N/A");
@@ -276,10 +277,56 @@ public class SneakerActivity extends BaseActivity {
 	}
 	
 	
+	private void SaveMapShot() {
+		mBaiduMap.snapshot(new SnapshotReadyCallback() {  
+	        @Override  
+	        public void onSnapshotReady(Bitmap bitmap) {  
+	            File file = new File(AppContext.PATH_MAPSHOT + File.separator + "MapShot_" + keytime );  
+	            FileOutputStream out;  
+	            try {  
+	                out = new FileOutputStream(file);  
+	                if (bitmap.compress(  
+	                        Bitmap.CompressFormat.PNG, 100, out)) {  
+	                    out.flush();  
+	                    out.close();  
+	                }  
+//	                Toast.makeText(SneakerActivity.this,  
+//	                        "屏幕截图成功，图片存在: " + file.toString(),  
+//	                        Toast.LENGTH_SHORT).show(); 
+	                keytime = -1;
+	                Intent resultIntent = new Intent(SneakerActivity.this, ResultActivity.class);
+	        		startActivityForResult(resultIntent, 1);
+	        		
+	            } catch (FileNotFoundException e) {  
+	                e.printStackTrace();  
+	            } catch (IOException e) {  
+	                e.printStackTrace();  
+	            }  
+	        }  
+	    });  
+	}
+	
+	public void updateRecord() {
+		if (keytime == -1) {
+			Log.e(TAG, "keytime loss");
+			return;
+		} 
+		Date now = new Date(keytime);
+		long currentRecordId = mDBUtils.getReocrdIdbyDate(now);
+		Record record = new Record(currentRecordId, AppContext.user_id, now, sum_time, 0, distance);
+		mDBUtils.updateRecord(record);
+		Log.d(TAG, "record update success");
+		
+		sum_time = 0;
+		distance = 0;
+		
+    }
+	
 	protected void finishThis() {
 		this.finish();
 		stopService();
 	}
+	
 	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -322,4 +369,5 @@ public class SneakerActivity extends BaseActivity {
     	}
     	return super.onKeyDown(keyCode, event);
     }
+	
 }

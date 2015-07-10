@@ -4,10 +4,17 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 
+
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class BaseActivity extends Activity {
 	private static ArrayList<Handler> handlers = new ArrayList<Handler>();
@@ -39,9 +46,15 @@ public class BaseActivity extends Activity {
 		mHandler.sendMessage(send);
 	}
 	
+	@TargetApi(Build.VERSION_CODES.KITKAT)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if(VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+			 getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			 getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		 }
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		addHandler(mHandler);
 	}
 	

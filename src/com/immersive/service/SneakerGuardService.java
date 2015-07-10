@@ -107,7 +107,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 				String date = format.format(today);
 				Log.e(TAG, "Date:" + date);
 				
-				step_id = mDBUtils.getStepIdByDate(date);
+				step_id = mDBUtils.getStepIdByDateAndId(date, AppContext.user_id);
 				if (step_id != -1) {
 					Log.e(TAG, "Toaday Step exist: id==>" + step_id);
 					dailyStep = mDBUtils.getStepById(step_id);
@@ -116,7 +116,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 					dailyStep = new Step(null, AppContext.user_id, date, 
 							0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 					mDBUtils.addToStepTable(dailyStep);
-					step_id = mDBUtils.getStepIdByDate(date);
+					step_id = mDBUtils.getStepIdByDateAndId(date, AppContext.user_id);
 					dailyStep.setId(step_id);
 					Log.e(TAG, "new Step Add: id==>" + step_id);
 				}
@@ -124,8 +124,9 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 			
 			Field stepField = Step.class.getDeclaredField("step_"+time);
 			stepField.setAccessible(true);
-			stepField.set(dailyStep, sum_step);
-			
+			if((Integer)stepField.get(dailyStep) == 0) {
+				stepField.set(dailyStep, sum_step);
+			}
 			Log.e(TAG, "dailyStep_"+time+":" + stepField.get(dailyStep));
 			sum_step = 0;
 			mDBUtils.updateStep(dailyStep);
@@ -272,7 +273,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 			public void run() {
 				// TODO Auto-generated method stub
 				while (isRecord) {
-					Log.d(TAG, "Step Turn Start");
+//					Log.d(TAG, "Step Turn Start");
 					if (step < MIN_STEP) {
 						Log.e(TAG, "Step Invalid:" + step);
 						save_step = step;
@@ -285,7 +286,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 							Log.d(TAG, "Over Add:" + save_step);
 						}
 					} else {
-						Log.e(TAG, "sum_step add:" + step);
+//						Log.e(TAG, "sum_step add:" + step);
 						sum_step += step;
 						overAdd = true;
 						step = 0;
@@ -297,7 +298,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 							
 						}
 					}
-					Log.d(TAG, "Step Turn Over");
+//					Log.d(TAG, "Step Turn Over");
 					try {
 						Thread.sleep(TICK_GUARD); // 8s进行一次检测
 					} catch (InterruptedException e) {

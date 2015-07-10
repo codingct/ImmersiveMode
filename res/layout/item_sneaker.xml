@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="250dp"
+    android:orientation="vertical" 
+    android:padding="8dp"
+    android:background="@drawable/card_frame">
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="#ffffff"
+        android:orientation="horizontal">"
+         <ImageView 
+        	android:id="@+id/iv_sneaker"
+        	android:layout_width="0dp"
+        	android:layout_height="match_parent"
+        	android:padding="10dp"
+        	android:src="@drawable/iv2"
+        	android:scaleType="fitXY"
+        	android:layout_weight="1"/>
+         <RelativeLayout 
+            android:id="@+id/sneaker_content"
+            android:layout_width="0dp"
+        	android:layout_height="match_parent"
+        	android:layout_weight="0.6"
+        	android:paddingLeft="20dp">
+        	<TextView 
+        	    android:id="@+id/sneaker_step"
+        	    android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content"
+        	    android:textSize="18sp"
+        	    android:text="@string/step"
+        	    android:layout_alignParentBottom="true"
+        	    android:layout_marginBottom="5dp"/>
+        	<TextView 
+        	    android:id="@+id/sneaker_time"
+        	    android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content"
+        	    android:textSize="18sp"
+        	    android:text="@string/time"
+        	    android:layout_above="@id/sneaker_step"
+        	    android:layout_marginBottom="5dp"
+        	    />
+        	<TextView 
+        	    android:id="@+id/sneaker_distance"
+        	    android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content"
+        	    android:textSize="18sp"
+        	    android:text="@string/distance"
+        	    android:layout_above="@id/sneaker_time"
+        	    android:layout_marginBottom="5dp"
+        	    />"
+            
+         </RelativeLayout>
+    </LinearLayout>
+   
+    
+
+</LinearLayout>

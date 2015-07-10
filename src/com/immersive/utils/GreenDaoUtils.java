@@ -95,15 +95,27 @@ public class GreenDaoUtils {
     public List<User> getAllUser() {
         return userDao.loadAll();
     }
-    public List<Record> getAllRecord() {
-    	return recordDao.loadAll();
+    public List<Record> getAllRecord(int user_id) {
+    	return getRecordByUserId(user_id);
     }
     public List<Location> getAllLocation() {
     	return locationDao.loadAll();
     }
-    public List<Step> getAllStep() {
-    	return stepDao.loadAll();
+    public List<Step> getAllStep(int user_id) {
+//    	return stepDao.loadAll();
+    	return getStepOrderById(user_id);
     }
+    
+    private List<Step> getStepOrderById(int user_id) {
+   	 QueryBuilder<Step> qb = stepDao.queryBuilder();
+   	 	qb.where(StepDao.Properties.User_id.eq(user_id));
+        qb.orderDesc(StepDao.Properties.Id);
+        if (qb.list().size() > 0) {
+        	return qb.list();
+        } else {
+            return null;
+        }
+   }
     
     private List<Record> getRecordByUserId(int Id) {
         QueryBuilder<Record> qb = recordDao.queryBuilder();
@@ -126,15 +138,16 @@ public class GreenDaoUtils {
 		}
 	}
 
-	public long getStepIdByDate(String date) {
+	public long getStepIdByDateAndId(String date, int user_id) {
 		QueryBuilder<Step> qb = stepDao.queryBuilder();
-		qb.where(StepDao.Properties.Step_date.eq(date));
+		qb.where(qb.and(StepDao.Properties.User_id.eq(user_id), StepDao.Properties.Step_date.eq(date)));
 		if (qb.list().size() > 0) {
 			return qb.list().get(0).getId();
 		} else {
 			return -1;
 		}
 	}
+	
     private List<Location> getLocationByRecordId(int Record_id) {
     	 QueryBuilder<Location> qb = locationDao.queryBuilder();
          qb.where(LocationDao.Properties.Record_id.eq(Record_id));

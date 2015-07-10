@@ -2,12 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="245dp"
-    android:padding="8dp" >
-    <ImageView
+    android:padding="8dp" 
+    android:background="@drawable/card_frame">
+    
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:scaleType="fitXY"
-        android:id="@+id/iv_card"/>
+        android:id="@+id/iv_chart"
+        android:orientation="vertical"/>
     <RelativeLayout 
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -26,12 +29,12 @@
     <RelativeLayout 
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_below="@id/iv_card"
+        android:layout_below="@id/iv_chart"
         android:background="#ffffff">
         <TextView 
+            android:id="@+id/card_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="blablabla~"
             android:textSize="15sp"
             android:textColor="#868682"
             android:layout_marginLeft="5dp"
@@ -56,5 +59,8 @@
         
     </RelativeLayout>
     
+    <View 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>

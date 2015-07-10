@@ -2,6 +2,8 @@ package com.immersive.activity;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
+import java.util.List;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -17,9 +19,11 @@ import org.achartengine.tools.ZoomListener;
 
 import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
+import com.code.immersivemode.Step;
+import com.immersive.utils.GreenDaoUtils;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
@@ -27,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -36,20 +41,26 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class ChartActivity extends Activity {
+public class ChartActivity extends BaseActivity {
+	public static final String TAG = "ChartActivity";
 	public static final String TYPE = "type";
 
 	private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 	private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 	private XYSeries mCurrentSeries;
 	private XYSeriesRenderer mCurrentRenderer;
-
 	private GraphicalView mChartView;
 	
 	private String mDateFormat;
 	
 	private ImageView topbar_back, topbar_next, topbar_previous = null;
 	private View.OnClickListener mOnClickListener = null;
+	
+	private GreenDaoUtils mDBUtils = null;
+	private long current_id = -1;
+	private List<Step> mDailyStep = null;
+	private Step mCurrentStep = null;
+	private int mCurrentPos = -1;
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedState) {
@@ -81,14 +92,6 @@ public class ChartActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-			getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-			getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		}
-
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.page_chart);
 		WindowManager m = getWindowManager();
 		Display d = m.getDefaultDisplay(); // 为获取屏幕宽、高
@@ -99,13 +102,53 @@ public class ChartActivity extends Activity {
 		p.dimAmount = 0.0f; // 设置黑暗度
 		getWindow().setAttributes(p); // 设置生效
 
+		Intent intent = getIntent();
+		current_id = intent.getLongExtra("step_id", -1);
+		mCurrentPos = intent.getIntExtra("position", -1);
+		
 		
 		initChart();
 		initListener();
-		initWidget();
 		
 		addSeries();
-		testPoint();
+		loadData();
+//		testPoint();
+		initWidget();
+		
+	}
+	
+	private void loadData() {
+		mDBUtils = GreenDaoUtils.getInstance(this);
+		if (current_id == -1) {
+			Log.e(TAG, "step_id error");
+			return;
+		}
+		mDailyStep = mDBUtils.getAllStep(AppContext.user_id);
+//		mCurrentStep = mDBUtils.getStepById(current_id);
+		mCurrentStep = mDailyStep.get(mCurrentPos);
+		mCurrentSeries.clear();
+		for (int i = 0; i < 24; i++) {
+			Field stepField;
+			try {
+				stepField = Step.class.getDeclaredField("step_"+i);
+				stepField.setAccessible(true);
+				int stepCount = (Integer) stepField.get(mCurrentStep);
+				mCurrentSeries.add(i, (double) stepCount);
+//				Log.d(TAG, "step_" + i + "=>" + stepField.get(mCurrentStep));
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (mChartView != null) {
+			mChartView.repaint();// 重画图表
+		}
 		
 	}
 	
@@ -116,6 +159,12 @@ public class ChartActivity extends Activity {
 		topbar_next.setOnClickListener(mOnClickListener);
 		topbar_previous = (ImageView) findViewById(R.id.topbar_pre);
 		topbar_previous.setOnClickListener(mOnClickListener);
+		
+		if (mCurrentPos == 0) {
+			topbar_previous.setVisibility(View.INVISIBLE);
+		} else if (mCurrentPos == mDailyStep.size() - 1){
+			topbar_next.setVisibility(View.INVISIBLE);
+		}
 		
 	}
 
@@ -160,8 +209,10 @@ public class ChartActivity extends Activity {
 					finish();
 					break;
 				case R.id.topbar_next:
+					showNext();
 					break;
 				case R.id.topbar_pre:
+					showPrevious();
 					break;
 				}
 			}
@@ -283,34 +334,32 @@ public class ChartActivity extends Activity {
 
 	}
 	
-	private void testPoint() {
-		mCurrentSeries.add(0, 87);
-		mCurrentSeries.add(1, 23);
-		mCurrentSeries.add(2, 0);
-		mCurrentSeries.add(3, 0);
-		mCurrentSeries.add(4, 0);
-		mCurrentSeries.add(5, 0);
-		mCurrentSeries.add(6, 0);
-		mCurrentSeries.add(7, 0);
-		mCurrentSeries.add(8, 91);
-		mCurrentSeries.add(9, 197);
-		mCurrentSeries.add(10, 263);
-		mCurrentSeries.add(11, 136);
-		mCurrentSeries.add(12, 370);
-		mCurrentSeries.add(13, 189);
-		mCurrentSeries.add(14, 37);
-		mCurrentSeries.add(15, 0);
-		mCurrentSeries.add(16, 92);
-		mCurrentSeries.add(17, 12);
-		mCurrentSeries.add(18, 189);
-		mCurrentSeries.add(19, 271);
-		mCurrentSeries.add(20, 386);
-		mCurrentSeries.add(21, 14);
-		mCurrentSeries.add(22, 19);
-		mCurrentSeries.add(23, 87);
-		if (mChartView != null) {
-			mChartView.repaint();// 重画图表
+	private void showNext() {
+		if (mCurrentPos == -1 || mCurrentPos == mDailyStep.size() - 1) {
+			return;
+		} else {
+			mCurrentPos++;
+			//mCurrentStep = mDailyStep.get(mCurrentPos);
+			loadData();
+			topbar_previous.setVisibility(View.VISIBLE);
 		}
+		if (mCurrentPos == mDailyStep.size() - 1) {
+			topbar_next.setVisibility(View.INVISIBLE);
+		}
+	}
+	
+	private void showPrevious() {
+		if (mCurrentPos == -1 || mCurrentPos == 0) {
+			return;
+		} else {
+			mCurrentPos--;
+			//mCurrentStep = mDailyStep.get(mCurrentPos);
+			loadData();
+			topbar_next.setVisibility(View.VISIBLE);
+		}
+		if (mCurrentPos == 0) {
+			topbar_previous.setVisibility(View.INVISIBLE);
+		} 
 	}
 	
 	private void enerateBitmap() {

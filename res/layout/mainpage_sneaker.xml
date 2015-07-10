@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="#ffffff">
+   <com.immersive.widget.PtrListView
+        android:id="@+id/list_sneaker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@null"
+        android:dividerHeight="8dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="#f2f2f2"
+        />
+
+</LinearLayout>

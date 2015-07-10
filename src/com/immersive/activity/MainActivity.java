@@ -7,8 +7,9 @@ import java.util.TimerTask;
 
 import com.code.immersivemode.R;
 import com.immersive.adapter.DrawerAdapter;
-import com.immersive.helper.Tab1Helper;
-import com.immersive.helper.Tab2Helper;
+import com.immersive.helper.CommunityHelper;
+import com.immersive.helper.DailyRecordHelper;
+import com.immersive.helper.SneakerReocrdHelper;
 import com.immersive.service.SneakerGuardService;
 import com.immersive.utils.ScreenShotUtils;
 import com.immersive.utils.ServiceUtils;
@@ -22,8 +23,6 @@ import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -37,8 +36,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
@@ -50,8 +47,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
-@TargetApi(Build.VERSION_CODES.KITKAT)
 public class MainActivity extends BaseActivity {
 	private ViewPager viewPager;//页卡内容  
     private ImageView imageView;// 动画图片  
@@ -77,11 +72,7 @@ public class MainActivity extends BaseActivity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
 		 super.onCreate(savedInstanceState);
-		 if(VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-			 getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-			 getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		 }
-		 requestWindowFeature(Window.FEATURE_NO_TITLE);
+		 
 		 setContentView(R.layout.page_main);
 		 
 		 initListener(); 
@@ -222,16 +213,18 @@ public class MainActivity extends BaseActivity {
         viewPager=(ViewPager) findViewById(R.id.vPager);  
         views=new ArrayList<View>();  
         LayoutInflater inflater=getLayoutInflater();  
-        view1=inflater.inflate(R.layout.page_layout1, null);
-        view2=inflater.inflate(R.layout.page_layout2, null);  
-        view3=inflater.inflate(R.layout.page_layout3, null);  
+        view1=inflater.inflate(R.layout.mainpage_daily, null);
+        view2=inflater.inflate(R.layout.mainpage_sneaker, null);  
+        view3=inflater.inflate(R.layout.mainpage_community, null);  
         views.add(view1);  
         views.add(view2);  
         views.add(view3);  
-        Tab1Helper helper1 = new Tab1Helper(view1, this);
-        Tab2Helper helper2 = new Tab2Helper(view2, this);
+        DailyRecordHelper helper1 = new DailyRecordHelper(view1, this);
+        SneakerReocrdHelper helper2 = new SneakerReocrdHelper(view2, this);
+        CommunityHelper helper3 = new CommunityHelper(view3, this);
         helper1.init();
         helper2.init();
+        helper3.init();
         viewPager.setAdapter(new MyViewPagerAdapter(views));  
         viewPager.setCurrentItem(0);  
         viewPager.setOnPageChangeListener(new MyOnPageChangeListener());  
