@@ -67,7 +67,6 @@ public class SneakerCore {
 					}
 				}
 				
-				
 				smallest = largest;
 				while (smallest > acc_y.get(position + i)) {
 					smallest = acc_y.get(position + i);
@@ -90,4 +89,6 @@ public class SneakerCore {
 		}
 		return step;
 	}
+	
+	
 }

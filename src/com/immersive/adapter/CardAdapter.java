@@ -113,9 +113,9 @@ public class CardAdapter extends BaseAdapter {
 			Date date = format.parse(mDailyStep.get(position).getStep_date());
 			Date currentTime = new Date();
 			if (currentTime.getTime() - date.getTime() < 86400000) {
-				vh.tv_date.setText("Today");
+				vh.tv_date.setText(mContext.getString(R.string.today));
 			} else if (currentTime.getTime() - date.getTime() < 86400000 * 2) {
-				vh.tv_date.setText("Yesterday");
+				vh.tv_date.setText(mContext.getString(R.string.yesterday));
 			} else {
 				vh.tv_date.setText((mDailyStep.get(position).getStep_date().replace(":", "-")));
 				

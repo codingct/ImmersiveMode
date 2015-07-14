@@ -41,6 +41,15 @@
                     android:layout_margin="10dp"
                     android:textColor="@color/white"
                     android:textSize="18sp" />
+                
+                <TextView
+                    android:id="@+id/opv_step"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/opv_distance"
+                    android:layout_margin="10dp"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
 
                 <Button
                     android:id="@+id/opv_start"

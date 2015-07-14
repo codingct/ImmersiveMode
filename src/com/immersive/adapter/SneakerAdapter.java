@@ -74,9 +74,9 @@ public class SneakerAdapter extends BaseAdapter {
 //		vh.iv_drawer.setImageDrawable(mContext.getResources().getDrawable(ItemDrawable[position]));;
 		String image_url = "file://" + AppContext.PATH_MAPSHOT + "/MapShot_" + mRecordList.get(position).getRecord_time().getTime();
 		ImageLoader.getInstance().displayImage(image_url, vh.iv_map);
-		vh.tv_step.setText(mContext.getString(R.string.step) +  mRecordList.get(position).getStep());
-		vh.tv_time.setText(mContext.getString(R.string.time) +  StringUtils.formatTime(mRecordList.get(position).getTime()));
-		vh.tv_dis.setText(mContext.getString(R.string.distance) +  mRecordList.get(position).getDistance());
+		vh.tv_step.setText(mContext.getString(R.string.step) + " " + mRecordList.get(position).getStep());
+		vh.tv_time.setText(mContext.getString(R.string.time) + " " + StringUtils.formatTime(mRecordList.get(position).getTime()));
+		vh.tv_dis.setText(mContext.getString(R.string.distance) + " " + String.format("%.1f", mRecordList.get(position).getDistance()) + " m");
 		
 		return convertView;
 	}

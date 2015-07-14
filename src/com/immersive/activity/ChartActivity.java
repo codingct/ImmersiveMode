@@ -3,6 +3,10 @@ package com.immersive.activity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.achartengine.ChartFactory;
@@ -39,11 +43,14 @@ import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class ChartActivity extends BaseActivity {
+public class ChartActivity extends SneakerDialogActivity {
 	public static final String TAG = "ChartActivity";
 	public static final String TYPE = "type";
+	
+	
 
 	private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 	private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
@@ -53,6 +60,7 @@ public class ChartActivity extends BaseActivity {
 	
 	private String mDateFormat;
 	
+	private TextView topbar_title = null;
 	private ImageView topbar_back, topbar_next, topbar_previous = null;
 	private View.OnClickListener mOnClickListener = null;
 	
@@ -61,6 +69,7 @@ public class ChartActivity extends BaseActivity {
 	private List<Step> mDailyStep = null;
 	private Step mCurrentStep = null;
 	private int mCurrentPos = -1;
+	private String mCurrentDate = "";
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedState) {
@@ -91,21 +100,12 @@ public class ChartActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.page_chart);
-		WindowManager m = getWindowManager();
-		Display d = m.getDefaultDisplay(); // 为获取屏幕宽、高
-		WindowManager.LayoutParams p = getWindow().getAttributes(); // 获取对话框当前的参值
-		p.height = (int) (d.getHeight() * 0.8); // 高度设置为屏幕的1.0
-		p.width = (int) (d.getWidth() * 0.9); // 宽度设置为屏幕的0.8
-		p.alpha = 1.0f; // 设置本身透明度
-		p.dimAmount = 0.0f; // 设置黑暗度
-		getWindow().setAttributes(p); // 设置生效
-
+		
 		Intent intent = getIntent();
 		current_id = intent.getLongExtra("step_id", -1);
 		mCurrentPos = intent.getIntExtra("position", -1);
-		
+		topbar_title = (TextView) findViewById(R.id.topbar_title);
 		
 		initChart();
 		initListener();
@@ -124,6 +124,25 @@ public class ChartActivity extends BaseActivity {
 			return;
 		}
 		mDailyStep = mDBUtils.getAllStep(AppContext.user_id);
+		mCurrentDate = mDailyStep.get(mCurrentPos).getStep_date();
+		
+		DateFormat format = new SimpleDateFormat("yyyy:MM:dd");
+		try {
+			Date date = format.parse(mDailyStep.get(mCurrentPos).getStep_date());
+			Date currentTime = new Date();
+			if (currentTime.getTime() - date.getTime() < 86400000) {
+				topbar_title.setText(getString(R.string.today));
+			} else if (currentTime.getTime() - date.getTime() < 86400000 * 2) {
+				topbar_title.setText(getString(R.string.yesterday));
+			} else {
+				topbar_title.setText((mDailyStep.get(mCurrentPos).getStep_date().replace(":", "-")));
+				
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 //		mCurrentStep = mDBUtils.getStepById(current_id);
 		mCurrentStep = mDailyStep.get(mCurrentPos);
 		mCurrentSeries.clear();
@@ -153,6 +172,9 @@ public class ChartActivity extends BaseActivity {
 	}
 	
 	private void initWidget() {
+		
+		
+		
 		topbar_back = (ImageView) findViewById(R.id.topbar_opv);
 		topbar_back.setOnClickListener(mOnClickListener);
 		topbar_next = (ImageView) findViewById(R.id.topbar_next);
@@ -160,7 +182,11 @@ public class ChartActivity extends BaseActivity {
 		topbar_previous = (ImageView) findViewById(R.id.topbar_pre);
 		topbar_previous.setOnClickListener(mOnClickListener);
 		
-		if (mCurrentPos == 0) {
+		
+		if (mDailyStep.size() == 1) {
+			topbar_previous.setVisibility(View.INVISIBLE);
+			topbar_next.setVisibility(View.INVISIBLE);
+		} else if (mCurrentPos == 0) {
 			topbar_previous.setVisibility(View.INVISIBLE);
 		} else if (mCurrentPos == mDailyStep.size() - 1){
 			topbar_next.setVisibility(View.INVISIBLE);
@@ -384,10 +410,5 @@ public class ChartActivity extends BaseActivity {
 		
 	}
 	
-	@Override
-	public void finish() {
-		super.finish();
-		this.setResult(RESULT_OK);
-	}
 
 }

@@ -1,12 +1,15 @@
 package com.code.immersivemode;
 
 import java.io.File;
+import java.util.List;
 
 import com.androidquery.callback.BitmapAjaxCallback;
 
 
 import com.baidu.mapapi.SDKInitializer;
 import com.code.immersivemode.DaoMaster.OpenHelper;
+import com.immersive.net.MyAjax;
+import com.immersive.net.SneakerApi;
 import com.immersive.utils.GreenDaoUtils;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
@@ -31,12 +34,16 @@ public class AppContext extends Application {
 	public final static String PATH_SCREENSHOT = PATH + File.separator + "/ScreenShot";
 	public final static String PATH_MAPSHOT = PATH + File.separator + "/MapShot";
 	
-	public static boolean debug = true; 
+	public static boolean debug = false; 
 	
 	
 	
 	public static boolean isRecordStart = false;
-	public static int user_id;
+	public static int user_id = -1;
+	public static String tmpAccessToken = "";
+	public static User user = null;
+	
+	private GreenDaoUtils mDBUtils = null;
 	
 	public static AppContext getInstance() {
 		return mInstance;
@@ -46,9 +53,13 @@ public class AppContext extends Application {
 	public void onCreate() {
 		super.onCreate();
 		mInstance = this;
+		mDBUtils = GreenDaoUtils.getInstance(getAppContext());
+		SneakerApi.aq = new MyAjax(getApplicationContext());
 		SDKInitializer.initialize(getApplicationContext());
-		initFolder();
+		
 		initImageLoader();
+		initFolder();
+		initData();
 		
 		if (debug) {
 			testDBCase();
@@ -61,9 +72,21 @@ public class AppContext extends Application {
     }
 	
 	@Override
-    public void onLowMemory(){
+    public void onLowMemory() {
         BitmapAjaxCallback.clearCache();
     }
+	
+	public void initData() {
+		List<User> mUser = mDBUtils.getAllUser();
+		if (mUser.size() == 0) {
+			user_id = -1;
+			return;
+		}
+		
+		user = mUser.get(0);
+		user_id = user.getId().intValue();
+		Log.d(TAG, "user_id Get:" + user_id);
+	}
 	
 	public void initFolder() {
 		File mFolder = new File(PATH);
@@ -98,7 +121,7 @@ public class AppContext extends Application {
 		} else {
 			Log.e(TAG, "user not find");
 		}
-		User user = new User((long) 1, "512225682@qq.com", "123456", "13672437864", "512225682");
+//		User user = new User((long) 1, "512225682@qq.com", "123456", "13672437864", "512225682");
 		GreenDaoUtils.getInstance(getAppContext()).addToUserTable(user);
 		Log.e(TAG, "user create");
 		user_id = 1;
@@ -150,6 +173,7 @@ public class AppContext extends Application {
 	    return daoSession;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void initImageLoader() {
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration  
 			    .Builder(getApplicationContext())  

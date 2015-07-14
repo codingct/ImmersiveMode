@@ -7,7 +7,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical" >
 
-    <include layout="@layout/actionbar" />
+    <include layout="@layout/dialogbar" />
     
     <RelativeLayout
         android:layout_width="match_parent"

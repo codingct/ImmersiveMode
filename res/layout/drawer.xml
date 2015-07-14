@@ -12,7 +12,7 @@
             android:id="@+id/iv_head"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/ic_head"
+            android:src="@drawable/ic_account"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="15dp" />
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:textColor="#ffffff"
             android:textSize="16sp"
-            android:text="Hi, Cortina~ \n\n\n\nWelcome, you have already been here for 3 days."
+            android:text="hi，主人~ \n\n\n你还没有登录哦，赶紧登录开启云同步功能吧~"
             android:layout_marginTop="25dp"
             android:layout_marginLeft="15dp"
             android:layout_toLeftOf="@id/iv_head"

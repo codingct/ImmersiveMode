@@ -53,7 +53,7 @@ public class GreenDaoUtils {
     
     /** 添加数据 */
     public void addToUserTable(User item) {
-    	userDao.insert(item);
+    	userDao.insertOrReplace(item);
     }
     public void addToRecordTable(Record item) {
     	recordDao.insert(item);
@@ -101,12 +101,12 @@ public class GreenDaoUtils {
     public List<Location> getAllLocation() {
     	return locationDao.loadAll();
     }
-    public List<Step> getAllStep(int user_id) {
+    public List<Step> getAllStep(long user_id) {
 //    	return stepDao.loadAll();
     	return getStepOrderById(user_id);
     }
     
-    private List<Step> getStepOrderById(int user_id) {
+    private List<Step> getStepOrderById(long user_id) {
    	 QueryBuilder<Step> qb = stepDao.queryBuilder();
    	 	qb.where(StepDao.Properties.User_id.eq(user_id));
         qb.orderDesc(StepDao.Properties.Id);
@@ -148,7 +148,7 @@ public class GreenDaoUtils {
 		}
 	}
 	
-    private List<Location> getLocationByRecordId(int Record_id) {
+    private List<Location> getLocationByRecordId(long Record_id) {
     	 QueryBuilder<Location> qb = locationDao.queryBuilder();
          qb.where(LocationDao.Properties.Record_id.eq(Record_id));
          qb.orderAsc(LocationDao.Properties.Id);
@@ -160,6 +160,9 @@ public class GreenDaoUtils {
     }
     
     /** 删除 */
+    public void deleteAllUser() {
+    	userDao.deleteAll();
+    }
     private void deleteUser(int Id) {
         QueryBuilder<User> qb = userDao.queryBuilder();
         DeleteQuery<User> bd = qb.where(UserDao.Properties.Id.eq(Id)).buildDelete();
@@ -191,7 +194,7 @@ public class GreenDaoUtils {
     	return getRecordByUserId(Id);
     }
     
-    public List<Location> requestFindLocationByRecord(int Record_id) {
+    public List<Location> requestFindLocationByRecord(long Record_id) {
     	return getLocationByRecordId(Record_id);
     }
     

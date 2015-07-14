@@ -4,16 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import android.view.Display;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,18 +19,21 @@ import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.model.LatLng;
+import com.code.immersivemode.Location;
 import com.code.immersivemode.R;
 import com.immersive.controller.MapController;
+import com.immersive.utils.GreenDaoUtils;
 import com.immersive.utils.ScreenShotUtils;
 import com.immersive.utils.ShareUtils;
 
 
-public class ResultActivity extends BaseActivity {
+public class ResultActivity extends SneakerDialogActivity {
 
 	private MapView mMapView = null;
 	private BaiduMap mBaiduMap = null;
 	public static final int TYPE_NORMAL = BaiduMap.MAP_TYPE_NORMAL;
 	public static final int TYPE_SATELLITE = BaiduMap.MAP_TYPE_SATELLITE;
+	private static final String TAG = "ResultActivity";
 
 	private MapController mMapController = null;
 	
@@ -44,30 +43,30 @@ public class ResultActivity extends BaseActivity {
 	private ImageView topBar_back = null;
 	private Button btn_share = null;
 	
+	private int currentPos = -1;
+	private long currentId = -1;
+	private double distance = 0;
+	private int step = 0;
+	private int time = 0;
 	
-	@SuppressWarnings("deprecation")
+	private List<Location> mLocationList = null;
+	
+	private GreenDaoUtils mDBUtils = null;
+	
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-			getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-			getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-		}
 		
+		Intent intent = this.getIntent();
+		currentId = intent.getLongExtra("record_id", -1);
+		currentPos = intent.getIntExtra("position", -1);
+		distance = intent.getDoubleExtra("distance", 0);
+		step = intent.getIntExtra("step", 0);
+		time = intent.getIntExtra("time", 0);
 		
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.page_result);
-		WindowManager m = getWindowManager();
-		Display d = m.getDefaultDisplay(); // 为获取屏幕宽、高
-		LayoutParams p = getWindow().getAttributes(); // 获取对话框当前的参值
-		p.height = (int) (d.getHeight() * 0.8); // 高度设置为屏幕的1.0
-		p.width = (int) (d.getWidth() * 0.9); // 宽度设置为屏幕的0.8
-		p.alpha = 1.0f; // 设置本身透明度
-		p.dimAmount = 0.0f; // 设置黑暗度
-		getWindow().setAttributes(p); // 设置生效
+		mDBUtils = GreenDaoUtils.getInstance(this);
+		
 		
 		initListener();
 		initWidget();
@@ -108,32 +107,28 @@ public class ResultActivity extends BaseActivity {
 		mMapController = new MapController(mBaiduMap);
 	}
 	
-	
-	
 	private void OverlayPointsLine() {
-		/* 测试数据 */
-		LatLng pt1 = new LatLng(23.057037, 113.408722);
-		LatLng pt2 = new LatLng(23.058037, 113.405722);
-		LatLng pt3 = new LatLng(23.059037, 113.407722);
-		LatLng pt4 = new LatLng(23.056037, 113.409722);
-		LatLng pt5 = new LatLng(23.056037, 113.401722);
-		LatLng pt6 = new LatLng(23.053037, 113.403722);
-		LatLng pt7 = new LatLng(23.057037, 113.404722);
+		if (currentId == -1) {
+			Log.e(TAG, "currentId Error");
+			return;
+		}
+		mLocationList = mDBUtils.requestFindLocationByRecord(currentId);
+		if (mLocationList == null) {
+			Log.e(TAG, "LocationList cannot find!");
+			return;
+			
+		}
 		List<LatLng> mPoints = new ArrayList<LatLng>();
-		mPoints.add(pt1);
-		mPoints.add(pt2);
-		mPoints.add(pt3);
-		mPoints.add(pt4);
-		mPoints.add(pt5);
-		mPoints.add(pt6);
-		mPoints.add(pt7);
-		
-
-		MapStatusUpdate u = MapStatusUpdateFactory.newLatLngZoom(pt1, 16);
+		LatLng point = null;
+		for (int i = 0; i < mLocationList.size(); i++) {
+			point = new LatLng(mLocationList.get(i).getLatitude(), mLocationList.get(i).getLongitude());
+			mPoints.add(point);
+		}
+		MapStatusUpdate u = MapStatusUpdateFactory.newLatLngZoom(point, 18);
 		mBaiduMap.animateMapStatus(u);
 		mMapController.overlayPointLine(mPoints);
-		mMapController.calDistance(mPoints);
 	}
+	
 	
 	private void share() {
 		String ImgPath = ScreenShotUtils.shotAndSave(ResultActivity.this);
@@ -142,12 +137,6 @@ public class ResultActivity extends BaseActivity {
 	
 	protected void finishThis() {
 		this.finish();
-	}
-	
-	@Override
-	public void finish() {
-		super.finish();
-		this.setResult(RESULT_OK);
 	}
 
 	@Override

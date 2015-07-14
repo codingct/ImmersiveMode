@@ -31,15 +31,15 @@ public class MyAjax extends AQuery {
 					NetStatus status = null;
 					if (!ajaxStatus.getMessage().equals("OK")) {
 						status = new NetStatus(-1, ajaxStatus.getMessage());
-					} else if(!json.getBoolean("success")) {
-						status = new NetStatus(json.getInt("error_code"),
-								json.getString("error_message"));
+					} else if(json.getInt("success") != 1) {
+						status = new NetStatus(json.getInt("code"));
+//								json.getString("error_message"));
 					}
 					
 					if(status == null) {
 						cb.suc(json);
 					} else {
-						Log.e("_NetWork", status.getStatusMessage());
+						Log.e("_NetWork", status.getStatusCode()+"");
 						cb.fail(status);
 					}
 					

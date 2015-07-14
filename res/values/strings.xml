@@ -2,9 +2,9 @@
 
     <string name="app_name">Sneaker</string>
     
-    <string name="tab1">ALL</string>
-    <string name="tab2">TYPE</string>
-    <string name="tab3">OTHER</string>
+    <string name="tab1">DAILY</string>
+    <string name="tab2">JOGGING</string>
+    <string name="tab3">COMMUNITY</string>
     
     <string name="drawer_new">show plat</string>
     <string name="drawer_favorite">favorite</string>
@@ -21,7 +21,34 @@
     <string name="time">Time: </string>
     <string name="distance">Distance: </string>
     <string name="share">Share</string>
-    <string name="step">Total Step:</string>
+    <string name="step">Step:</string>
+    
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="email">(Email/Phone)</string>
+    <string name="password">(Password)</string>
+    <string name="skip">Skip</string>
+    <string name="dialog_skip">You will not be able to use cloud sync if you skip. </string>
+    <string name="dialog_skip_title">Tips</string>
+    <string name="dialog_skip_konw">Know</string>
+    <string name="dialog_skip_login">Login</string>
+    <string name="dialog_logining">Please waiting</string>
+    
+    <string name="name">(Name)</string>
+    <string name="gender">Gender:</string>
+    <string name="birthday">Birthday:</string>
+    <string name="weight">Weight:</string>
+    <string name="height">Height:</string>
+    <string name="reset">Reset</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="modify">Modify</string>
+    <string name="yearmonthday">Year-Month-Day</string>
+    <string name="cm">CM</string>
+    <string name="kilo">KG</string>
     
     <string name="exit_again">press again to exit</string>
     

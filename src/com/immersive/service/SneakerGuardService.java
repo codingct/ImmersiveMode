@@ -65,6 +65,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 
 	private Step dailyStep = null;
 	private long step_id = -1;
+	public static int mSneakerStep = 0;
 	
 	/** 
 	 *  
@@ -282,17 +283,20 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 						// 结束补余纠偏
 						if (overAdd) {
 							sum_step += save_step;
+							mSneakerStep += save_step;
 							overAdd = false;
 							Log.d(TAG, "Over Add:" + save_step);
 						}
 					} else {
 //						Log.e(TAG, "sum_step add:" + step);
 						sum_step += step;
+						mSneakerStep += step;
 						overAdd = true;
 						step = 0;
 						// 开始补余纠偏
 						if (startAdd) {
 							sum_step += save_step;
+							mSneakerStep += save_step;
 							startAdd = false;
 							Log.d(TAG, "Start Add:" + save_step);
 							

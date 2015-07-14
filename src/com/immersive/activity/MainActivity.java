@@ -43,6 +43,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,14 +54,17 @@ public class MainActivity extends BaseActivity {
     private TextView textView1,textView2,textView3;  
     private List<View> views;// Tab页面列表  
     private ImageView drawerToggler;
+    private ImageView btnSyc;
     private ListView drawerList;
-    private Button FABAdd;
+    private RelativeLayout FABAdd;
     private DrawerAdapter drawerAdapter;
     private int offset = 0;// 动画图片偏移量  
     private int currIndex = 0;// 当前页卡编号  
     private int bmpW;// 动画图片宽度  
     private View view1, view2, view3;//各个页卡  
     private DrawerLayout mDrawerLayout = null;
+    private TextView mDrawerTitle = null;
+    private ImageView mDrawerAvatar = null;
     private boolean isDrawOpened = false;
     private static boolean canExit = false;
     
@@ -119,9 +123,10 @@ public class MainActivity extends BaseActivity {
 	}
 	
 	private void initWidget() {
-		FABAdd = (Button) findViewById(R.id.fab_add);
+		FABAdd = (RelativeLayout) findViewById(R.id.fab_add);
 		FABAdd.setOnClickListener(mOnClickListener);
-		
+		btnSyc = (ImageView) findViewById(R.id.topbar_syc);
+		btnSyc.setOnClickListener(mOnClickListener);
 		cover = (View) findViewById(R.id.cover);
 	}
 	
@@ -143,10 +148,13 @@ public class MainActivity extends BaseActivity {
 			public void onClick(View v) {
 				switch(v.getId()) {
 				case R.id.fab_add:
-					Intent intent = new Intent(MainActivity.this, SneakerActivity.class);
-					MainActivity.this.startActivity(intent);
+					Intent intent_sneaker = new Intent(MainActivity.this, SneakerActivity.class);
+					MainActivity.this.startActivity(intent_sneaker);
 					break;
-					
+				case R.id.iv_head:
+					Intent intent_login = new Intent(MainActivity.this, LoginActivity.class);
+					MainActivity.this.startActivityForResult(intent_login, 1);
+					break;
 				}
 			}
 		};
@@ -157,6 +165,10 @@ public class MainActivity extends BaseActivity {
 	private void initDrawer() {
 		// TODO Auto-generated method stub
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		
+		mDrawerTitle = (TextView) findViewById(R.id.iv_title);
+		mDrawerAvatar = (ImageView) findViewById(R.id.iv_head);
+		mDrawerAvatar.setOnClickListener(mOnClickListener);
 
         drawerToggler = (ImageView) findViewById(R.id.topbar_opv);
         drawerToggler.setVisibility(View.VISIBLE);
@@ -344,14 +356,16 @@ public class MainActivity extends BaseActivity {
             animation.setDuration(300);  
             imageView.startAnimation(animation);  
             
+            if (currIndex == 2) {
+            	FABAdd.setVisibility(View.GONE);
+            } else {
+            	FABAdd.setVisibility(View.VISIBLE);
+            }
         }  
           
     }  
     
-    public void handler(Message msg) {
-		switch (msg.what) {
-		}
-	}
+   
     
 }  
 	

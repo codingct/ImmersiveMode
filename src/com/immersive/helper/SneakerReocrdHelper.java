@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
 import com.code.immersivemode.Record;
+import com.immersive.activity.MainActivity;
+import com.immersive.activity.ResultActivity;
 import com.immersive.adapter.SneakerAdapter;
 import com.immersive.utils.GreenDaoUtils;
 import com.immersive.widget.PtrListView;
@@ -99,8 +102,15 @@ public class SneakerReocrdHelper implements OnItemClickListener {
 	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		//FavourBean favour = this.mList.get(arg2 - mListView.getHeaderViewsCount());
-		
+		((MainActivity)mActivity).cover.setVisibility(View.VISIBLE);
+		Record record = mRecordList.get(arg2 - cardList.getHeaderViewsCount());
+		Intent mapIntent = new Intent(mActivity, ResultActivity.class);
+		mapIntent.putExtra("record_id", record.getId());
+		mapIntent.putExtra("position", arg2 - cardList.getHeaderViewsCount());
+		mapIntent.putExtra("step", record.getStep());
+		mapIntent.putExtra("distance", record.getDistance());
+		mapIntent.putExtra("time", record.getTime());
+		mActivity.startActivityForResult(mapIntent, 1);
 	}
 
 }

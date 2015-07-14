@@ -42,6 +42,7 @@ import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
 import com.code.immersivemode.Record;
 import com.immersive.controller.MapController;
+import com.immersive.service.SneakerGuardService;
 import com.immersive.service.SneakerRecordService;
 import com.immersive.utils.GreenDaoUtils;
 import com.immersive.utils.ServiceUtils;
@@ -63,7 +64,7 @@ public class SneakerActivity extends BaseActivity {
 	private View cover = null;
 	private TextView topBar_title = null;
 	private ImageView topBar_back = null;
-	private TextView tv_timer,tv_distance = null;
+	private TextView tv_timer,tv_distance, tv_step = null;
 	private Button btn_start, btn_pause, btn_over = null;
 	
 	private SneakerReceiver mSneakerReceiver = null;
@@ -73,6 +74,8 @@ public class SneakerActivity extends BaseActivity {
 	
 	private GreenDaoUtils mDBUtils = null;
 	private int sum_time = 0;
+	private long currentId = -1;
+	private int sum_step = 0;
 
 	
 	private class SneakerReceiver extends BroadcastReceiver{
@@ -103,6 +106,8 @@ public class SneakerActivity extends BaseActivity {
 	            	sum_time = extras.getInt("time");
 	            	String str_time = StringUtils.formatTime(sum_time);
 	            	tv_timer.setText(getString(R.string.time) + "   " + str_time);
+	            	sum_step = SneakerGuardService.mSneakerStep;
+	            	tv_step.setText(getString(R.string.step) + "   " + sum_step);
 	            
 	            } else if (extras.containsKey("info")) {
 	            	keytime = extras.getLong("info");
@@ -146,6 +151,7 @@ public class SneakerActivity extends BaseActivity {
 					AppContext.isRecordStart = true;
 					if (SneakerRecordService.mRecordHandler != null) {
 						SneakerRecordService.mRecordHandler.sendEmptyMessage(SneakerRecordService.MSG_CHECK);
+						SneakerGuardService.mSneakerStep = 0;
 						btn_start.setVisibility(View.GONE);
 						btn_over.setVisibility(View.VISIBLE);
 						btn_pause.setVisibility(View.VISIBLE);
@@ -160,6 +166,7 @@ public class SneakerActivity extends BaseActivity {
 					AppContext.isRecordStart = false;
 					if (SneakerRecordService.mRecordHandler != null) {
 						SneakerRecordService.mRecordHandler.sendEmptyMessage(SneakerRecordService.MSG_CHECK);
+						sum_step = SneakerGuardService.mSneakerStep;
 						btn_start.setVisibility(View.VISIBLE);
 						btn_over.setVisibility(View.GONE);
 						btn_pause.setVisibility(View.GONE);
@@ -203,6 +210,8 @@ public class SneakerActivity extends BaseActivity {
 		
 		tv_timer = (TextView) findViewById(R.id.opv_timer);
 		tv_distance = (TextView) findViewById(R.id.opv_distance);
+		tv_step = (TextView) findViewById(R.id.opv_step);
+		
 		cover = (View) findViewById(R.id.cover);
 		
 		btn_start = (Button) findViewById(R.id.opv_start);
@@ -293,10 +302,18 @@ public class SneakerActivity extends BaseActivity {
 //	                Toast.makeText(SneakerActivity.this,  
 //	                        "屏幕截图成功，图片存在: " + file.toString(),  
 //	                        Toast.LENGTH_SHORT).show(); 
-	                keytime = -1;
+	               
 	                Intent resultIntent = new Intent(SneakerActivity.this, ResultActivity.class);
+	                resultIntent.putExtra("record_id", currentId);
+	                resultIntent.putExtra("position", -1);
+	                resultIntent.putExtra("step", 0);
+	                resultIntent.putExtra("distance", distance);
+	                resultIntent.putExtra("time", sum_time);
 	        		startActivityForResult(resultIntent, 1);
 	        		
+	        		keytime = -1;
+	        		sum_time = 0;
+	        		distance = 0;
 	            } catch (FileNotFoundException e) {  
 	                e.printStackTrace();  
 	            } catch (IOException e) {  
@@ -313,12 +330,11 @@ public class SneakerActivity extends BaseActivity {
 		} 
 		Date now = new Date(keytime);
 		long currentRecordId = mDBUtils.getReocrdIdbyDate(now);
-		Record record = new Record(currentRecordId, AppContext.user_id, now, sum_time, 0, distance);
+		currentId = currentRecordId;
+		Record record = new Record(currentRecordId, (int)AppContext.user_id, now, sum_time, sum_step, distance);
 		mDBUtils.updateRecord(record);
 		Log.d(TAG, "record update success");
 		
-		sum_time = 0;
-		distance = 0;
 		
     }
 	

@@ -18,10 +18,13 @@ public class CommunityHelper {
 	}
 	public void init() {
 		mWeb = (WebView) mLayout.findViewById(R.id.webview);
-		mWeb.loadUrl("http://dji.com");
+		mWeb.loadUrl("http://sunriser.gotoip55.com/Monitor/counter/index.html");
 		//启用支持javascript
 		WebSettings settings = mWeb.getSettings();
 		settings.setJavaScriptEnabled(true);
+		settings.setSupportZoom(false);
+		settings.setUseWideViewPort(true);
+		
 		mWeb.setWebViewClient(new WebViewClient(){
 	           @Override
 	        public boolean shouldOverrideUrlLoading(WebView view, String url) {

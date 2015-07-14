@@ -11,8 +11,13 @@ public class User {
     private String email;
     /** Not-null value. */
     private String password;
-    private String phone;
-    private String qq;
+    private String birthday;
+    private String name;
+    private Integer gender;
+    private String weight;
+    private String height;
+    private Integer sum_step;
+    private Integer sum_calorie;
 
     public User() {
     }
@@ -21,12 +26,17 @@ public class User {
         this.id = id;
     }
 
-    public User(Long id, String email, String password, String phone, String qq) {
+    public User(Long id, String email, String password, String birthday, String name, Integer gender, String weight, String height, Integer sum_step, Integer sum_calorie) {
         this.id = id;
         this.email = email;
         this.password = password;
-        this.phone = phone;
-        this.qq = qq;
+        this.birthday = birthday;
+        this.name = name;
+        this.gender = gender;
+        this.weight = weight;
+        this.height = height;
+        this.sum_step = sum_step;
+        this.sum_calorie = sum_calorie;
     }
 
     public Long getId() {
@@ -57,20 +67,60 @@ public class User {
         this.password = password;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getBirthday() {
+        return birthday;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 
-    public String getQq() {
-        return qq;
+    public String getName() {
+        return name;
     }
 
-    public void setQq(String qq) {
-        this.qq = qq;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getGender() {
+        return gender;
+    }
+
+    public void setGender(Integer gender) {
+        this.gender = gender;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public Integer getSum_step() {
+        return sum_step;
+    }
+
+    public void setSum_step(Integer sum_step) {
+        this.sum_step = sum_step;
+    }
+
+    public Integer getSum_calorie() {
+        return sum_calorie;
+    }
+
+    public void setSum_calorie(Integer sum_calorie) {
+        this.sum_calorie = sum_calorie;
     }
 
 }
