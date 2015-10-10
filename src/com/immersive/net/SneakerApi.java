@@ -1,7 +1,10 @@
 package com.immersive.net;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,6 +14,7 @@ import android.util.Log;
 import com.androidquery.AQuery;
 import com.androidquery.callback.AjaxCallback;
 import com.code.immersivemode.AppContext;
+import com.code.immersivemode.Step;
 import com.code.immersivemode.User;
 import com.immersive.activity.BaseActivity;
 
@@ -115,6 +119,14 @@ public class SneakerApi {
 		aq.ajax(url, params, new MyAjax.CallBack() {
 			@Override
 			public void suc(JSONObject json) throws JSONException {
+				JSONObject info = json.getJSONObject("data");
+				user.setId(Long.valueOf(info.getString("uid")));
+				user.setName(info.getString("username"));
+				user.setGender(Integer.valueOf(info.getString("sex")));
+				user.setBirthday(info.getString("year"));
+				user.setHeight(info.getString("height"));
+				user.setWeight(info.getString("weight"));
+				
 				BaseActivity.broadcast(newMsg(NetStatus.USERINFO_GET_SUC));
 			}
 			
@@ -151,6 +163,110 @@ public class SneakerApi {
 			public void fail(NetStatus status) throws JSONException {
 				if(status.getStatusCode() == -1) {
 					BaseActivity.broadcast(newMsg(NetStatus.USERINFO_SET_SUC>>2, status.getStatusMessage()));
+				} else {
+					BaseActivity.broadcast(newMsg(status.getStatusCode(), status.getStatusMessage()));
+				}
+			}
+		});
+	}
+	
+	public static void dailyReocrd_get(int user_id, final List<Step> step) {
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		params.put("uid", user_id);
+		params.put("access_token", AppContext.tmpAccessToken);
+//		Log.e("", "uid" + user_id);
+//		Log.e("", "accessToken:" + AppContext.tmpAccessToken);
+		
+		
+		String url = NetContext.suffix(NetContext.URL_RECORD_DAILY_GET);
+		
+		aq.ajax(url, params, new MyAjax.CallBack() {
+			@Override
+			public void suc(JSONObject json) throws JSONException {
+
+				JSONArray recordArray = json.getJSONArray("data");
+				for (int i = 0; i < recordArray.length(); i++) {
+					Step mStep = new Step();
+					mStep.setStep_date(recordArray.getJSONObject(i).getString("date"));
+
+					String steps = recordArray.getJSONObject(i).getString("allhour");
+					Log.e("fuck", steps);
+					String hour_steps[] = steps.split(",");
+					for (int j = 0; j < hour_steps.length; j++) {
+						try {
+							Field stepField = Step.class
+									.getDeclaredField("step_" + j);
+							stepField.setAccessible(true);
+							stepField.set(mStep, Integer.valueOf(hour_steps[j]));
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchFieldException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					step.add(mStep);
+				}
+				
+				BaseActivity.broadcast(newMsg(NetStatus.RECORD_DAILY_GET_SUC));
+			}
+			
+			@Override
+			public void fail(NetStatus status) throws JSONException {
+				if(status.getStatusCode() == -1) {
+					BaseActivity.broadcast(newMsg(NetStatus.RECORD_DAILY_GET_SUC>>2, status.getStatusMessage()));
+				} else {
+					BaseActivity.broadcast(newMsg(status.getStatusCode(), status.getStatusMessage()));
+				}
+			}
+		});
+	}
+	
+	public static void dailyReocrd_set(final Step step) {
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		params.put("uid", step.getUser_id());
+		params.put("access_token", AppContext.tmpAccessToken);
+		params.put("date", step.getStep_date());
+		String hour = "";
+		for (int i = 0; i < 24; i++) {
+			try {
+				Field stepField = Step.class.getDeclaredField("step_" + i);
+				stepField.setAccessible(true);
+				if (i == 23) {
+					hour += stepField.get(step);
+				} else {
+					hour += stepField.get(step) + ",";
+				}
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		params.put("hour", hour);
+		
+		String url = NetContext.suffix(NetContext.URL_RECORD_DAILY_ADD);
+		
+		aq.ajax(url, params, new MyAjax.CallBack() {
+			@Override
+			public void suc(JSONObject json) throws JSONException {
+				
+				BaseActivity.broadcast(newMsg(NetStatus.RECORD_DAILY_SET_SUC));
+			}
+			
+			@Override
+			public void fail(NetStatus status) throws JSONException {
+				if(status.getStatusCode() == -1) {
+					BaseActivity.broadcast(newMsg(NetStatus.RECORD_DAILY_SET_SUC>>2, status.getStatusMessage()));
 				} else {
 					BaseActivity.broadcast(newMsg(status.getStatusCode(), status.getStatusMessage()));
 				}

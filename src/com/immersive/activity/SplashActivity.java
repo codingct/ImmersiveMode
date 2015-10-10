@@ -4,12 +4,15 @@ package com.immersive.activity;
 import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
 import com.immersive.net.NetStatus;
+import com.immersive.net.SneakerApi;
 import com.immersive.utils.ServiceUtils;
+
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.util.Log;
 
 
 public class SplashActivity extends BaseActivity {
@@ -19,6 +22,10 @@ public class SplashActivity extends BaseActivity {
 		 super.onCreate(savedInstanceState);
 		 
 		 setContentView(R.layout.page_start);
+		 
+		 if	(AppContext.user != null) {
+			SneakerApi.userLogin(AppContext.user); 
+		 }
 		 
 		 MyThread t = new MyThread();
 		 t.start();
@@ -61,6 +68,7 @@ public class SplashActivity extends BaseActivity {
 	public void handler(Message msg) {
 		switch (msg.what) {
 		case NetStatus.LOGIN_SUC:
+			Log.d("SplashActivity", "login success");
 			break;
 			
 		case NetStatus.LOGIN_SUC>>2:

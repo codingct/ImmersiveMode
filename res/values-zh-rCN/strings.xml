@@ -34,7 +34,7 @@
     <string name="dialog_skip_title">提示</string>
     <string name="dialog_skip_konw">我知道了</string>
     <string name="dialog_skip_login">返回登录</string>
-    <string name="dialog_logining">正在登录，请稍候</string>
+    <string name="dialog_logining">请稍候</string>
     
     <string name="name">（昵称）</string>
     <string name="gender">性别:</string>

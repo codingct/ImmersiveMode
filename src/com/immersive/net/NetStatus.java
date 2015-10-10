@@ -15,6 +15,7 @@ public class NetStatus {
 	public static final int USER_HAS_EXIST = 106;			// 注册时用户已存在
 	public static final int FILE_UPLOAD_ERROR = 107;		// 文件上传错误
 	public static final int AVATAR_FORMAT_INVALID = 108;	// 头像图片格式错误
+	public static final int DATABASE_NODATA = 109; 			// 数据库无数据
 
 	//最后一位为0为了方便位移运算
 	public static final int LOGIN_SUC = 10010;
@@ -22,6 +23,8 @@ public class NetStatus {
 	public static final int LOGOUT_SUC = 10030;
 	public static final int USERINFO_GET_SUC = 10040;
 	public static final int USERINFO_SET_SUC = 10050;
+	public static final int RECORD_DAILY_GET_SUC = 10060;
+	public static final int RECORD_DAILY_SET_SUC = 10070;
 	
 	
 	

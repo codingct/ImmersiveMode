@@ -42,22 +42,27 @@ public class DailyRecordHelper implements OnItemClickListener{
 	
 	public void init() {
 		mDBUtils = GreenDaoUtils.getInstance(mActivity);
-		loadDailyRecord();
+		
 		initPtrList();
+		loadDailyRecord();
 
 	}
 
 	private void initPtrList() {
 		
 		cardList = (PtrListView)mLayout.findViewById(R.id.list1);
-		cardAdapter = new CardAdapter(mLayout.getContext(), mDailyStep);
-		cardList.setAdapter(cardAdapter);
+		if (mDailyStep != null) {
+			cardAdapter = new CardAdapter(mLayout.getContext(), mDailyStep);
+			cardList.setAdapter(cardAdapter);
+		}
 		cardList.setPullToRefresh(true);
 		cardList.setOnNeedUpdateListener(new OnNeedUpdateListener() {
 			@Override
 			public void needUpdate() {
 				loadDailyRecord();
-				cardAdapter.notifyDataSetChanged();
+				if (cardAdapter != null) {
+					cardAdapter.notifyDataSetChanged();
+				}
 				Log.e(TAG, "PullToRefresh");
 				cardList.setPullToRefresh(true);
 				cardList.updateFinished();
@@ -101,12 +106,13 @@ public class DailyRecordHelper implements OnItemClickListener{
 	
 	private void loadDailyRecord() {
 		mDailyStep = mDBUtils.getAllStep(AppContext.user_id);
-		if (mDailyStep == null) {
-			mDailyStep = new ArrayList<Step>();
-			Log.e(TAG, "dailyStep not exist");
+		if (mDailyStep != null) {
+			Log.e(TAG, "mDailyStep size = " + mDailyStep.size());
+		
+			cardAdapter = new CardAdapter(mLayout.getContext(), mDailyStep);
+			cardList.setAdapter(cardAdapter);
+			cardAdapter.notifyDataSetChanged();
 		}
-
-		Log.e(TAG, "mDailyStep size = " + mDailyStep.size());
 //		for (int i = 0; i < mDailyStep.size(); i++) {
 //			Log.e(TAG, "mDailyStep date=>" + mDailyStep.get(i).getStep_date());
 //		}

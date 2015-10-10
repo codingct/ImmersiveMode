@@ -5,18 +5,27 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
+import com.code.immersivemode.Step;
 import com.immersive.adapter.DrawerAdapter;
 import com.immersive.helper.CommunityHelper;
 import com.immersive.helper.DailyRecordHelper;
 import com.immersive.helper.SneakerReocrdHelper;
+import com.immersive.net.NetStatus;
+import com.immersive.net.SneakerApi;
 import com.immersive.service.SneakerGuardService;
+import com.immersive.utils.GreenDaoUtils;
 import com.immersive.utils.ScreenShotUtils;
 import com.immersive.utils.ServiceUtils;
 import com.immersive.utils.ShareUtils;
+import com.immersive.widget.LoadingDialog;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -72,12 +81,20 @@ public class MainActivity extends BaseActivity {
     public final static String TAG = "MainActivity";
     private OnItemClickListener mDrawerItemClickListener = null;
     private OnClickListener mOnClickListener = null;
+    
+    private ImageView btn_syc = null;
+    private GreenDaoUtils mDBUtils = null;
+    private List<Step> mStepList = null;
+	private LoadingDialog mLoadingDialog;
+	private List<Step> remoteList = null;
+	private int sycSize = -1;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
 		 super.onCreate(savedInstanceState);
 		 
 		 setContentView(R.layout.page_main);
+		 mDBUtils = GreenDaoUtils.getInstance(this);
 		 
 		 initListener(); 
 	     initTab();  
@@ -88,6 +105,7 @@ public class MainActivity extends BaseActivity {
 	}
 	
 	private Timer ExitTimer = new Timer();
+
 	private class ExitCleanTask extends TimerTask{
 	        @Override
 	        public void run() {
@@ -111,6 +129,27 @@ public class MainActivity extends BaseActivity {
     	}
     	return super.onKeyDown(keyCode, event);
     }
+	
+	private void RecordSyc() {
+		mLoadingDialog = new LoadingDialog(this);
+		mLoadingDialog.show();
+		mStepList = mDBUtils.getAllStep(AppContext.user_id);
+		remoteList = new ArrayList<Step>();
+		SneakerApi.dailyReocrd_get(AppContext.user_id, remoteList);
+		
+	}
+	
+	private void saveStepInfo() {
+		for (int i = 0; i < remoteList.size(); i++) {
+			remoteList.get(i).setUser_id(AppContext.user_id);
+			mDBUtils.addToStepTable(remoteList.get(i));
+		}
+		if (remoteList.size() > 0) {
+			Log.d(TAG, "new syc record add");
+		}
+		mLoadingDialog.dismiss();
+		Toast.makeText(this, "云同步成功，新增" + remoteList.size() + "条记录，请刷新列表查看", Toast.LENGTH_SHORT).show();
+	}
 	
 	private void initService() {
 		if (ServiceUtils.isWorked(this, "com.immersive.service.SneakerGuardService")) {
@@ -155,6 +194,13 @@ public class MainActivity extends BaseActivity {
 					Intent intent_login = new Intent(MainActivity.this, LoginActivity.class);
 					MainActivity.this.startActivityForResult(intent_login, 1);
 					break;
+				case R.id.topbar_syc:
+					if (AppContext.user_id == -1) {
+						showDialog();
+					} else {
+						RecordSyc();
+					}
+					break;
 				}
 			}
 		};
@@ -162,6 +208,29 @@ public class MainActivity extends BaseActivity {
 		
 		
 	}
+	
+	private void showDialog() {
+		AlertDialog.Builder builder = new Builder(this);
+		builder.setMessage(getString(R.string.dialog_skip));
+		builder.setTitle("您还没有登录，无法使用云同步功能！");
+		
+		builder.setPositiveButton(getString(R.string.dialog_skip_konw), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				}
+			});
+		builder.setNegativeButton(getString(R.string.login), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				Intent intent_login = new Intent(MainActivity.this, LoginActivity.class);
+				MainActivity.this.startActivityForResult(intent_login, 1);
+				}
+			});
+		builder.create().show();
+	}
+	
 	private void initDrawer() {
 		// TODO Auto-generated method stub
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -169,6 +238,15 @@ public class MainActivity extends BaseActivity {
 		mDrawerTitle = (TextView) findViewById(R.id.iv_title);
 		mDrawerAvatar = (ImageView) findViewById(R.id.iv_head);
 		mDrawerAvatar.setOnClickListener(mOnClickListener);
+		
+		if (AppContext.user_id != -1) {
+			mDrawerTitle.setText("hi, "+ AppContext.user.getName() + "~  ");
+			if (AppContext.user.getGender() == 1) {
+				mDrawerAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar_male));
+			} else {
+				mDrawerAvatar.setImageDrawable(getResources().getDrawable(R.drawable.avatar_female));
+			}
+		}
 
         drawerToggler = (ImageView) findViewById(R.id.topbar_opv);
         drawerToggler.setVisibility(View.VISIBLE);
@@ -365,6 +443,66 @@ public class MainActivity extends BaseActivity {
           
     }  
     
+    @Override
+	public void handler(Message msg) {
+		switch (msg.what) {
+		case NetStatus.RECORD_DAILY_GET_SUC:
+			List<Step> tmpList = new ArrayList<Step>();
+			List<Step> tmpList2 = new ArrayList<Step>();
+			for (int i = 0; i < remoteList.size(); i++) {
+				for (int j = 0; j < mStepList.size(); j++) {
+					if (mStepList.get(j).getStep_date().equals(remoteList.get(i).getStep_date())) {
+						tmpList.add(mStepList.get(j));
+						tmpList2.add(remoteList.get(i));
+					}
+				}
+			}
+			for (int i = 0; i < tmpList.size(); i++) {
+				mStepList.remove(tmpList.get(i));
+				remoteList.remove(tmpList2.get(i));
+			}
+			
+			sycSize = mStepList.size();
+			if (sycSize > 0) {
+				for (int i = 0; i < mStepList.size(); i++) {
+					SneakerApi.dailyReocrd_set(mStepList.get(i));
+				}
+			} else if (remoteList.size() > 0 ) {
+				saveStepInfo();
+			} else {
+				mLoadingDialog.dismiss();
+				Toast.makeText(MainActivity.this, "云端记录已是最新，无须同步", Toast.LENGTH_SHORT).show();
+			}
+			break;
+			
+		case NetStatus.RECORD_DAILY_GET_SUC>>2:
+			mLoadingDialog.dismiss();
+			Toast.makeText(MainActivity.this, "网络错误，请检查手机网络", Toast.LENGTH_SHORT).show();
+			break;
+			
+		case NetStatus.RECORD_DAILY_SET_SUC:
+			Log.d(TAG, "set success：" + sycSize);
+			sycSize --;
+			if (sycSize == 0) {
+				
+				saveStepInfo();
+			}
+			break;
+			
+		case NetStatus.DATABASE_NODATA:
+			sycSize = mStepList.size();
+			for (int i = 0; i < mStepList.size(); i++) {
+				SneakerApi.dailyReocrd_set(mStepList.get(i));
+			}
+			break;
+			
+		case NetStatus.RECORD_DAILY_SET_SUC>>2:
+			sycSize --;
+			mLoadingDialog.dismiss();
+			Toast.makeText(MainActivity.this, "网络错误，请检查手机网络", Toast.LENGTH_SHORT).show();
+			break;
+		}
+	}
    
     
 }  

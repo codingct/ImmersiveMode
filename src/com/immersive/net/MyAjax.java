@@ -29,6 +29,7 @@ public class MyAjax extends AQuery {
 			public void callback(String url, JSONObject json, AjaxStatus ajaxStatus) {
 				try {
 					NetStatus status = null;
+					Log.e("fuck", ajaxStatus.getMessage());
 					if (!ajaxStatus.getMessage().equals("OK")) {
 						status = new NetStatus(-1, ajaxStatus.getMessage());
 					} else if(json.getInt("success") != 1) {
@@ -49,6 +50,7 @@ public class MyAjax extends AQuery {
 			}
 		});
 	}
+	
 	
 	public static ImageOptions newOptions() {
 		if(preset == null) {

@@ -20,7 +20,6 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import android.app.Application;
 import android.content.Context;
-import android.graphics.Bitmap.CompressFormat;
 import android.os.Environment;
 import android.util.Log;
 
@@ -62,8 +61,8 @@ public class AppContext extends Application {
 		initData();
 		
 		if (debug) {
-			testDBCase();
-//			addTestData();
+			//testDBCase();
+			//addTestData();
 		}
 	}
 	
@@ -128,9 +127,9 @@ public class AppContext extends Application {
 	}
 	
 	public void addTestData() {
-		Step step1 = new Step(1l, user_id, "2015:07:06", 87, 23, 0, 0, 0, 0, 0, 0, 91, 197, 263, 136, 370, 189, 37, 0, 92, 12, 189, 271, 386, 14, 19, 87 );
-		Step step2 = new Step(2l, user_id, "2015:07:07", 0, 0, 0, 0, 0, 0, 0, 0, 191, 19, 231, 436, 327, 419, 237, 410, 392, 129, 18, 0, 386, 14, 19, 87 );
-		Step step3 = new Step(3l, user_id, "2015:07:08", 187, 39, 0, 0, 0, 0, 0, 16, 59, 19, 163, 436, 70, 19, 371, 0, 192, 12, 18, 271, 36, 140, 192, 187 );
+		Step step1 = new Step(1l, user_id, "2015-07-06", 87, 23, 0, 0, 0, 0, 0, 0, 91, 197, 263, 136, 370, 189, 37, 0, 92, 12, 189, 271, 386, 14, 19, 87 );
+		Step step2 = new Step(2l, user_id, "2015-07-07", 0, 0, 0, 0, 0, 0, 0, 0, 191, 19, 231, 436, 327, 419, 237, 410, 392, 129, 18, 0, 386, 14, 19, 87 );
+		Step step3 = new Step(3l, user_id, "2015-07-08", 187, 39, 0, 0, 0, 0, 0, 16, 59, 19, 163, 436, 70, 19, 371, 0, 192, 12, 18, 271, 36, 140, 192, 187 );
 		GreenDaoUtils.getInstance(getAppContext()).addToStepTable(step1);
 		GreenDaoUtils.getInstance(getAppContext()).addToStepTable(step2);
 		GreenDaoUtils.getInstance(getAppContext()).addToStepTable(step3);

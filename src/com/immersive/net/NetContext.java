@@ -20,7 +20,7 @@ public class NetContext {
 	
 	
 	public static final String URL_RECORD_DAILY_ADD = "addDayRecord";
-	public static final String URL_RECORD_DAILY_GET = "getDayRecord";
+	public static final String URL_RECORD_DAILY_GET = "getDayRecords";
 	
 	public static final String URL_RECORD_SNEAKER_ADD = "addRunRecord";
 	public static final String URL_RECORD_SNEAKER_GET = "getRunRecord";

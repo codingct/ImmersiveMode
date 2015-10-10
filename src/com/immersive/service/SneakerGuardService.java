@@ -104,7 +104,7 @@ public class SneakerGuardService extends SneakerService implements SensorEventLi
 			
 			if (dailyStep == null) {
 				Date today = new Date();
-				SimpleDateFormat format = new SimpleDateFormat("yyyy:MM:dd");
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 				String date = format.format(today);
 				Log.e(TAG, "Date:" + date);
 				

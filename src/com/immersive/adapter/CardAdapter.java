@@ -108,7 +108,7 @@ public class CardAdapter extends BaseAdapter {
 		addSeries();
 		loadData(vh, position);
 		vh.iv_chart.setTag(mDailyStep.get(position).getStep_date());
-		DateFormat format = new SimpleDateFormat("yyyy:MM:dd");
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		try {
 			Date date = format.parse(mDailyStep.get(position).getStep_date());
 			Date currentTime = new Date();
@@ -117,7 +117,7 @@ public class CardAdapter extends BaseAdapter {
 			} else if (currentTime.getTime() - date.getTime() < 86400000 * 2) {
 				vh.tv_date.setText(mContext.getString(R.string.yesterday));
 			} else {
-				vh.tv_date.setText((mDailyStep.get(position).getStep_date().replace(":", "-")));
+				vh.tv_date.setText((mDailyStep.get(position).getStep_date()));
 				
 			}
 		} catch (ParseException e) {

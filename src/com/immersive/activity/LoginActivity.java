@@ -154,8 +154,7 @@ public class LoginActivity extends BaseActivity {
 	public void handler(Message msg) {
 		switch (msg.what) {
 		case NetStatus.LOGIN_SUC:
-			saveAccountInfo();
-			mLoadingDialog.dismiss();
+			SneakerApi.userInfo_get(user);
 			break;
 			
 		case NetStatus.LOGIN_SUC>>2:
@@ -172,6 +171,13 @@ public class LoginActivity extends BaseActivity {
 			mLoadingDialog.dismiss();
 			Toast.makeText(LoginActivity.this, "密码错误", Toast.LENGTH_SHORT).show();
 			break;
+		case NetStatus.USERINFO_GET_SUC:
+			AppContext.user = user;
+			saveAccountInfo();
+			break;
+		case NetStatus.USERINFO_GET_SUC>>2:
+			mLoadingDialog.dismiss();
+			Toast.makeText(LoginActivity.this, "网络错误，请检查手机网络", Toast.LENGTH_SHORT).show();
 		}
 	}
 }

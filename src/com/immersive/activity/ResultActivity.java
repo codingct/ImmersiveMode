@@ -41,6 +41,7 @@ public class ResultActivity extends SneakerDialogActivity {
 	
 	private TextView topBar_title = null;
 	private ImageView topBar_back = null;
+	private ImageView topBar_share = null;
 	private Button btn_share = null;
 	
 	private int currentPos = -1;
@@ -81,7 +82,7 @@ public class ResultActivity extends SneakerDialogActivity {
 				case R.id.topbar_opv:
 					finishThis();
 					break;
-				case R.id.opv_share:
+				case R.id.topbar_share:
 					share();
 					break;
 				}
@@ -91,11 +92,11 @@ public class ResultActivity extends SneakerDialogActivity {
 	private void initWidget() {
 		topBar_title = (TextView) findViewById(R.id.topbar_title);
 		topBar_back = (ImageView) findViewById(R.id.topbar_opv);
+		topBar_share = (ImageView) findViewById(R.id.topbar_share);
+		topBar_share.setOnClickListener(mOnClickListener);
 		
 		topBar_back.setImageDrawable(getResources().getDrawable(R.drawable.ic_back));
 		topBar_back.setOnClickListener(mOnClickListener);
-		btn_share = (Button) findViewById(R.id.opv_share);
-		btn_share.setOnClickListener(mOnClickListener);
 	}
 	
 	private void initMap() {

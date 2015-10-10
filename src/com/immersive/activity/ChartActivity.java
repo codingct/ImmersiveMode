@@ -25,6 +25,8 @@ import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
 import com.code.immersivemode.Step;
 import com.immersive.utils.GreenDaoUtils;
+import com.immersive.utils.ScreenShotUtils;
+import com.immersive.utils.ShareUtils;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -60,8 +62,8 @@ public class ChartActivity extends SneakerDialogActivity {
 	
 	private String mDateFormat;
 	
-	private TextView topbar_title = null;
-	private ImageView topbar_back, topbar_next, topbar_previous = null;
+	private TextView topbar_title, opv_step, opv_cal = null;
+	private ImageView topbar_back, topbar_next, topbar_previous, topbar_share = null;
 	private View.OnClickListener mOnClickListener = null;
 	
 	private GreenDaoUtils mDBUtils = null;
@@ -118,6 +120,9 @@ public class ChartActivity extends SneakerDialogActivity {
 	}
 	
 	private void loadData() {
+		opv_step = (TextView) findViewById(R.id.opv_step);
+		opv_cal = (TextView) findViewById(R.id.opv_cal);
+		
 		mDBUtils = GreenDaoUtils.getInstance(this);
 		if (current_id == -1) {
 			Log.e(TAG, "step_id error");
@@ -126,7 +131,7 @@ public class ChartActivity extends SneakerDialogActivity {
 		mDailyStep = mDBUtils.getAllStep(AppContext.user_id);
 		mCurrentDate = mDailyStep.get(mCurrentPos).getStep_date();
 		
-		DateFormat format = new SimpleDateFormat("yyyy:MM:dd");
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		try {
 			Date date = format.parse(mDailyStep.get(mCurrentPos).getStep_date());
 			Date currentTime = new Date();
@@ -135,7 +140,7 @@ public class ChartActivity extends SneakerDialogActivity {
 			} else if (currentTime.getTime() - date.getTime() < 86400000 * 2) {
 				topbar_title.setText(getString(R.string.yesterday));
 			} else {
-				topbar_title.setText((mDailyStep.get(mCurrentPos).getStep_date().replace(":", "-")));
+				topbar_title.setText((mDailyStep.get(mCurrentPos).getStep_date()));
 				
 			}
 		} catch (ParseException e) {
@@ -146,12 +151,14 @@ public class ChartActivity extends SneakerDialogActivity {
 //		mCurrentStep = mDBUtils.getStepById(current_id);
 		mCurrentStep = mDailyStep.get(mCurrentPos);
 		mCurrentSeries.clear();
+		int sum_step = 0;
 		for (int i = 0; i < 24; i++) {
 			Field stepField;
 			try {
 				stepField = Step.class.getDeclaredField("step_"+i);
 				stepField.setAccessible(true);
 				int stepCount = (Integer) stepField.get(mCurrentStep);
+				sum_step += stepCount; 
 				mCurrentSeries.add(i, (double) stepCount);
 //				Log.d(TAG, "step_" + i + "=>" + stepField.get(mCurrentStep));
 			} catch (NoSuchFieldException e) {
@@ -168,7 +175,8 @@ public class ChartActivity extends SneakerDialogActivity {
 		if (mChartView != null) {
 			mChartView.repaint();// 重画图表
 		}
-		
+		opv_step.setText(getString(R.string.step) + sum_step);
+		opv_cal.setText("消耗卡路里：" + (sum_step/20));
 	}
 	
 	private void initWidget() {
@@ -181,7 +189,8 @@ public class ChartActivity extends SneakerDialogActivity {
 		topbar_next.setOnClickListener(mOnClickListener);
 		topbar_previous = (ImageView) findViewById(R.id.topbar_pre);
 		topbar_previous.setOnClickListener(mOnClickListener);
-		
+		topbar_share = (ImageView) findViewById(R.id.topbar_share);
+		topbar_share.setOnClickListener(mOnClickListener);
 		
 		if (mDailyStep.size() == 1) {
 			topbar_previous.setVisibility(View.INVISIBLE);
@@ -239,6 +248,9 @@ public class ChartActivity extends SneakerDialogActivity {
 					break;
 				case R.id.topbar_pre:
 					showPrevious();
+					break;
+				case R.id.topbar_share:
+					share();
 					break;
 				}
 			}
@@ -344,6 +356,11 @@ public class ChartActivity extends SneakerDialogActivity {
 		}
 	}
 	
+	private void share() {
+		String ImgPath = ScreenShotUtils.shotAndSave(ChartActivity.this);
+		ShareUtils.shareMsg("测试分享", "测试分享", ImgPath, ChartActivity.this);
+	}
+	
 	private void addSeries() {
 		String seriesTitle = "Step" + (mDataset.getSeriesCount() + 1);// 图例
 		XYSeries series = new XYSeries(seriesTitle);	// 定义XYSeries
@@ -402,7 +419,6 @@ public class ChartActivity extends SneakerDialogActivity {
 		}
 		// -->end
 	}
-	
 	
 	@Override
 	protected void onResume() {

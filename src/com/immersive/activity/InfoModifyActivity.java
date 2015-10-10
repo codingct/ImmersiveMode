@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.code.immersivemode.AppContext;
 import com.code.immersivemode.R;
 import com.code.immersivemode.User;
 import com.immersive.net.NetStatus;
@@ -173,6 +174,8 @@ public class InfoModifyActivity extends BaseActivity {
 	
 	private void saveUserInfo() {
 		mDBUtils.addToUserTable(user);
+		AppContext.user_id = user.getId().intValue();
+		AppContext.user = user;
 		this.setResult(RESULT_OK);
 		finish();
 	}
